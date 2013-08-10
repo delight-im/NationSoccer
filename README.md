@@ -11,7 +11,7 @@ Supported Android versions: 2.2+ (API level 8+)
 
 Every contribution is warmly welcomed. Please fork this repository, apply your changes, and submit your contributions by sending a pull request. You may as well [help translating](http://www.localize.li/C/nation_soccer) this game. Thank you!
 
-## Third-party libraries that have been used
+## Third-party libraries
 
 + [AndEngine GLES2-AnchorCenter](https://github.com/nicolasgramlich/AndEngine/tree/GLES2-AnchorCenter) (Apache License 2.0)
 + [AndEnginePhysicsBox2DExtension GLES2-AnchorCenter](https://github.com/nicolasgramlich/AndEnginePhysicsBox2DExtension/tree/GLES2-AnchorCenter)
@@ -20,7 +20,7 @@ Every contribution is warmly welcomed. Please fork this repository, apply your c
 + [Android Support Library v4](http://developer.android.com/tools/support-library/index.html)
 + [AppRater](https://github.com/delight-im/AppRater) (Apache License 2.0)
 
-## Third-party media files by
+## Third-party media files
 
 + Martin Berube
 + www.IconDrawer.com
@@ -40,7 +40,7 @@ Every contribution is warmly welcomed. Please fork this repository, apply your c
 The Java source code of this project (but not libraries and media files mentioned above) have been released under the following license:
 
 ```
-    Nation Soccer
+    Nation Soccer for Android
     Copyright (C) 2013 delight.im
 
     This program is free software: you can redistribute it and/or modify
