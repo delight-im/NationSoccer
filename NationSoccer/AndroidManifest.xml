@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="im.delight.soccer"
+    android:versionCode="38"
+    android:versionName="0.8.6"
+    android:installLocation="preferExternal"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16"
+        tools:ignore="OldTargetApi" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+    <uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.BLUETOOTH" />
+	<supports-screens
+	    android:smallScreens="true"
+	    android:normalScreens="true"
+	    android:largeScreens="true"
+	    android:xlargeScreens="true"
+	    android:resizeable="true"
+	    android:anyDensity="true" />
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        android:theme="@style/MyTheme"
+        android:name=".MyApp">
+        <activity
+            android:name=".StartScreen"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/MyTheme.MyBackground">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".PlayerSelection"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/choosing_player"
+            android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".GameScreenSingle"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/app_name"
+            android:theme="@style/MyTheme.NoBackground" />
+        <activity
+            android:name=".settings.Main"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/settings"
+            android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".About"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/credits"
+            android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".TournamentScreen"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/tournament"
+            android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".CareerScreen"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/career"
+            android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".TutorialScreen"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/career"
+            android:theme="@style/MyTheme.MyBackground" />
+    </application>
+</manifest>

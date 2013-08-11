@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+	<style name="MyTheme" parent="Theme.Sherlock.Light.DarkActionBar">
+	    <item name="actionBarStyle">@style/MyTheme.ActionBar</item>
+	    <item name="android:actionBarStyle" tools:ignore="NewApi">@style/MyTheme.ActionBar</item>
+	</style>
+	<style name="MyTheme.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
+	    <item name="background">@color/grey_dark_50</item>
+	    <item name="android:background">@color/grey_dark_50</item>
+	</style>
+	<style name="MyTheme.MyBackground" parent="MyTheme">
+	    <item name="android:windowBackground">@drawable/stadium_background</item>
+	    <item name="android:listSeparatorTextViewStyle">@style/PreferenceListHeader</item>
+	    <item name="android:textColorPrimary">@color/white</item>
+	</style>
+	<style name="MyTheme.NoBackground" parent="MyTheme">
+	    <item name="android:windowBackground">@null</item>
+	</style>
+	<style name="PreferenceListHeader">
+	    <item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+		<item name="android:textColor">@color/white_dark</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textSize">16sp</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:background">#70bbbbbb</item>
+		<item name="android:paddingTop">6dp</item>
+		<item name="android:fadingEdge">horizontal</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingBottom">6dp</item>
+		<item name="android:paddingLeft">12dp</item>
+		<item name="android:paddingRight">12dp</item>
+	</style>
+    <style name="ModeButton">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:textColor">@color/white_dark</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minWidth">1dp</item>
+        <item name="android:minHeight">1dp</item>
+    </style>
+    <style name="ModeButton.Action">
+        <item name="android:background">@drawable/button_action</item>
+        <item name="android:textColor">@color/white_dark</item>
+	</style>
+    <dimen name="mainscreen_font_size">18sp</dimen>
+    <dimen name="mainscreen_padding">16dp</dimen>
+    <style name="ProgressBar_Horizontal" parent="@android:style/Widget.ProgressBar.Horizontal">
+        <item name="android:indeterminate">false</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:max">100</item>
+        <item name="android:progressDrawable">@drawable/progress_bar</item>
+    </style>
+    <style name="TextCaption">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingRight">6dp</item>
+	</style>
+    <style name="TextCaption.ProgressBar">
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+	<dimen name="content_padding_lr">12dp</dimen>
+	<dimen name="content_padding_tb">6dp</dimen>
+	<dimen name="button_corner_radius">6dp</dimen>
+</resources>

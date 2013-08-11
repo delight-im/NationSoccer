@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nation Soccer</string>
+    <string-array name="setting_game_end_machine">
+        <item>time</item>
+        <item>goals</item>
+    </string-array>
+    <string-array name="setting_game_time_machine">
+        <item>90</item>
+        <item>120</item>
+        <item>150</item>
+    </string-array>
+    <string-array name="setting_game_goals_machine">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+    </string-array>
+    <string-array name="setting_sound_machine">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="setting_game_time_default">120</string>
+    <string name="setting_game_goals_default">5</string>
+    <string name="setting_game_end_default">time</string>
+    <string name="setting_sound_default">2</string>
+    <string name="facebook_page_url">https://www.facebook.com/nationsoccer</string>
+    <string name="help_translate_url">http://localize.li/C/nation_soccer</string>
+</resources>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_on_facebook">Nation Soccer on Facebook</string>
+	<string name="app_on_facebook_summary">Like us, give us feedback, complain if something does not work or suggest new features.</string>
+	<string name="bluetooth">Bluetooth</string>
+	<string name="career">Career</string>
+	<string name="career_choose_team">Choose my team</string>
+	<string-array name="career_match_lost">
+		<item>From defeats you learn the most - so just try again!</item>
+		<item>No one has ever managed to complete the career without a defeat. Try again!</item>
+		<item>Next time, it will work out, for sure. Try again!</item>
+	</string-array>
+	<string name="career_restart">Start new career</string>
+	<string-array name="career_steps">
+		<item>The great opportunity has come!\nIn the past, you have already delighted your youth coaches and aroused experts\' interest. But now you have to prove your skills and your talent in professional soccer as well.\nDue to your international education in elite boarding schools, several nations want you to join their teams. However, you can only take to the field for a single team, of course. Even I, your agent, cannot make this decision for you &#8230;</item>
+		<item>When you announced your decision on your personal blog, I was called by the national coach right away. He expressed his joy about your decision and stated the date for the next test match against %1$s. You\'ll be fielded, so seize this opportunity!</item>
+		<item>Now the crucial phase begins. The world cup qualifiers are due. Now, of all times, it\'s going to be %1$s that has just regained strength.</item>
+		<item>This was important! Having won the first match, you\'ve had an auspicious start into the qualifiers. But yet again you\'re in a tight spot: Against %1$s, a victory is a must!</item>
+		<item>Keep it up! The media celebrate you as the new super talent! Now it means meeting the expectations and delighting the supporters is your job. Wrestle down %1$s!</item>
+		<item>That was more distinct than expected! You\'re just about to be declared the favorite in your group. But mind: Only the first qualifies for the world cup. Allegedly weak %1$s will demand your utmost effort.</item>
+		<item>Yet another victory, but what good is that when your largest competitors win just as well? The next match, too, may not be lost! %1$s will certainly object to that &#8230;</item>
+		<item>Exciting match! Your supporters love such ties, but slowly people start demanding a bold victory again! Please, don\'t keep us in such suspense when playing against %1$s &#8230;</item>
+		<item>Great, that was clear! In the last match of this year\'s qualifiers, everything is at stake: Both %1$s and you have won all matches so far, but only one will qualify for the world cup. Now, of all times, your team captain has been injured and your coach drafts you in to replace him. Can you manage to make the grade?</item>
+		<item>We\'ll go the world cup! As the new team captain, you have led your nation to the world cup in the last match. Your coach is so excited that he decided to continue betting on you. Now you can start to lay the foundation for some bigger victory - but against %1$s it will not be that easy, for sure.</item>
+		<item>Your domination on field has convinced almost everyone now, people start dreaming of the world cup trophy. Before, you must make it past the group stage, however. Second match against %1$s, second win?</item>
+		<item>That was a close shave! In spite of two wins, odds are that you have to pack your bags! Against %1$s, just show all your skills once more!</item>
+		<item>Could have been worse, couldn\'t it? The first step towards your professional career has been taken!\nOf course, there\'s still a hard way to go. To be sure, you\'ve caught some scouts\' eyes, but not everybody does know your name yet, by a long shot.\nTime to change this! And here comes the match against ailing %1$s in the nick of time &#8230;</item>
+		<item>The minimum target has been achieved! During the group stage, you have evermore asserted yourself as the leader of your team. Against runaway favorite %1$s, you have to prove that you can perform prodigies!</item>
+		<item>For the supporters at home, there is only one interesting topic right now: You! At home, your mailbox is full of supporters\'s letters and marriage proposals! Now don\'t lose concentration! In the quarterfinal, %1$s is waiting for you, in any case an unpleasant opponent!</item>
+		<item>Just one match left to the final! If not there was %1$s &#8230; The supporters bet on you! You have played such a great tournament so far, you know how frustrating an elimination in the semifinals would be!</item>
+		<item>Hooray, off to the final! You have been waiting for that moment for your whole life: In the final match, you\'ll fight against %1$s for the title! Time to make your family and your country proud! Give it everything you\'ve got!</item>
+		<item>What a final match! In a thrilling encounter, you have marked the difference once again! Thanks to you, your nation comes off victorious - as new world champion! But there\'s more to come: You have also been elected the best player of the tournament! Soccer is your oyster &#8230;</item>
+		<item>Awesome! This was just as I had imagined! Due to this terrific performance, you have backed your claims to more appearances. Yet competition is tough. Against %1$s, time is set to leave some rivals behind!</item>
+		<item>Although you delivered quite a good performance, you were not able to set yourself apart from the other youth players distinctly. Just a good performance is not enough anymore on this level! Demonstrate your true potential against %1$s.</item>
+		<item>Your coach wants to see more of your performances and has decided to take you on an international tournament build-up. You\'re lucky: Some of your rivals have been injured and you can now let the coach see that you are indispensable to the team. In the first match, you\'ll face %1$s.</item>
+		<item>The coach felt that you were lacking some motiviation in the most crucial situations. In order to convince him, you\'ll have to give all you\'ve got in every single duel. Do better against %1$s!</item>
+		<item>Yes, all right! It seems you did take my advice to heart and therefore you rised in the coach\'s esteem. Finally, time to convince him entirely in the tournament\'s final against %1$s.</item>
+		<item>So you did already win your first smaller title, but this is nothing compared to the world cup trophy. Time for a last preparation before the qualifiers start. It will be against %1$s. Demonstrate to all that your team needs you!</item>
+		<item>Yet again you have been chosen man of the match. More and more people know your name and demand a regular place for you in the first eleven! Prove to them that they are not doing for love! The best bet is to start in the next game against %1$s already.</item>
+	</string-array>
+	<string name="choose_opponent_player">Choose opponent</string>
+	<string name="choose_skill_to_improve">You have improved! Which skill do you want to strengthen?</string>
+	<string name="choose_your_player">Choose your player</string>
+	<string name="choosing_player">Choosing players</string>
+	<string name="coming_soon">Coming soon!</string>
+	<string name="congratulations">Congratulations</string>
+	<string name="credits">Credits</string>
+	<string name="credits_summary">Legal notices concerning this game and its components as well as a list of contributors and translators.</string>
+	<string name="exit_game">Exit game</string>
+	<string name="exit_game_sure">Are you sure you want to leave?</string>
+	<string name="finish_tournament">Finish tournament</string>
+	<string name="flag_opponent">Opponent\'s nation</string>
+	<string name="flag_self">Your nation</string>
+	<string name="goal_capital">GOAL</string>
+	<string name="golden_goal">Golden Goal</string>
+	<string name="help_translate">Help translate</string>
+	<string name="help_translate_summary">Support us by translating the game to your language, so that you and others from your country can play the game in their native language.</string>
+	<string name="no">No</string>
+	<string name="ok">OK</string>
+	<string name="other">Other</string>
+	<string name="out_capital">OUT</string>
+	<string name="pity">Pity!</string>
+	<string name="player_ar">Argentina</string>
+	<string name="player_back">Previous player</string>
+	<string name="player_be">Belgium</string>
+	<string name="player_br">Brazil</string>
+	<string name="player_ci">Ivory Coast</string>
+	<string name="player_cm">Cameroon</string>
+	<string name="player_cn">China</string>
+	<string name="player_de">Germany</string>
+	<string name="player_ec">Ecuador</string>
+	<string name="player_es">Spain</string>
+	<string name="player_flag">Player\'s flag</string>
+	<string name="player_forward">Next player</string>
+	<string name="player_fr">France</string>
+	<string name="player_gr">Greece</string>
+	<string name="player_icon">Player\'s picture</string>
+	<string name="player_it">Italy</string>
+	<string name="player_jm">Jamaica</string>
+	<string name="player_jp">Japan</string>
+	<string name="player_kr">South Korea</string>
+	<string name="player_mx">Mexico</string>
+	<string name="player_ng">Nigeria</string>
+	<string name="player_nl">Netherlands</string>
+	<string name="player_picture">Player\'s picture</string>
+	<string name="player_pt">Portugal</string>
+	<string name="player_ru">Russia</string>
+	<string name="player_selection_page">Player %1$d of %2$d</string>
+	<string name="player_tr">Turkey</string>
+	<string name="player_uk">United Kingdom</string>
+	<string name="player_us">USA</string>
+	<string name="player_uy">Uruguay</string>
+	<string name="play_now">Play now</string>
+	<string name="quick_match">Quick Match</string>
+	<string name="rate_explanation">Do you enjoy this game? We would be very happy if you could rate our app on Google Play. Thanks for your support!</string>
+	<string name="rate_later">Later</string>
+	<string name="rate_never">Never</string>
+	<string name="rate_now">Rate Now</string>
+	<string name="rate_title">Rate this app</string>
+	<string name="round_of_16">Round of 16</string>
+	<string name="round_of_2">Final</string>
+	<string name="round_of_4">Semifinal</string>
+	<string name="round_of_8">Quarterfinal</string>
+	<string name="settings">Settings</string>
+	<string name="settings_general">General settings</string>
+	<string name="setting_game_end">End of game</string>
+	<string-array name="setting_game_end_human">
+		<item>by time</item>
+		<item>by goals</item>
+	</string-array>
+	<string name="setting_game_goals">Goals to win</string>
+	<string-array name="setting_game_goals_human">
+		<item>5</item>
+		<item>10</item>
+		<item>15</item>
+	</string-array>
+	<string name="setting_game_time">Dauer des Spiels</string>
+	<string-array name="setting_game_time_human">
+		<item>01:30</item>
+		<item>02:00</item>
+		<item>02:30</item>
+	</string-array>
+	<string name="setting_sound">Sound</string>
+	<string-array name="setting_sound_human">
+		<item>Off</item>
+		<item>Only sounds</item>
+		<item>Sounds + Music</item>
+	</string-array>
+	<string name="skill_improved_jump">Your jumping skill has improved by %d%%</string>
+	<string name="skill_improved_power">Your power has improved by %d%%</string>
+	<string name="skill_improved_speed">Your speed has improved by %d%%</string>
+	<string name="skill_jump">Jump</string>
+	<string name="skill_power">Power</string>
+	<string name="skill_speed">Speed</string>
+	<string name="tap_to_leave">Tap to leave</string>
+	<string name="tournament">Tournament</string>
+	<string name="yes">Yes</string>
+	<string name="you_lost">YOU LOST</string>
+	<string name="you_won">YOU WON</string>
+</resources>

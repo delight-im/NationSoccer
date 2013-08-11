@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/settings_general">
+        <ListPreference android:key="setting_game_end" android:title="@string/setting_game_end" android:enabled="true" android:selectable="true" android:entries="@array/setting_game_end_human" android:entryValues="@array/setting_game_end_machine" android:defaultValue="@string/setting_game_end_default" />
+        <ListPreference android:key="setting_game_time" android:title="@string/setting_game_time" android:enabled="true" android:selectable="true" android:entries="@array/setting_game_time_human" android:entryValues="@array/setting_game_time_machine" android:defaultValue="@string/setting_game_time_default" />
+		<ListPreference android:key="setting_game_goals" android:title="@string/setting_game_goals" android:enabled="true" android:selectable="true" android:entries="@array/setting_game_goals_human" android:entryValues="@array/setting_game_goals_machine" android:defaultValue="@string/setting_game_goals_default" />
+		<ListPreference android:key="setting_sound" android:title="@string/setting_sound" android:enabled="true" android:selectable="true" android:entries="@array/setting_sound_human" android:entryValues="@array/setting_sound_machine" android:defaultValue="@string/setting_sound_default" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/other">
+		<PreferenceScreen
+		    android:title="@string/app_on_facebook"
+		    android:summary="@string/app_on_facebook_summary">
+			<intent
+			    android:action="android.intent.action.VIEW"
+			    android:data="@string/facebook_page_url" />
+		</PreferenceScreen>
+		<PreferenceScreen
+		    android:title="@string/help_translate"
+		    android:summary="@string/help_translate_summary">
+			<intent
+			    android:action="android.intent.action.VIEW"
+			    android:data="@string/help_translate_url" />
+		</PreferenceScreen>
+		<PreferenceScreen
+		    android:title="@string/credits"
+		    android:summary="@string/credits_summary">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:targetPackage="im.delight.soccer"
+				android:targetClass="im.delight.soccer.About" />
+		</PreferenceScreen>
+	</PreferenceCategory>
+</PreferenceScreen>
