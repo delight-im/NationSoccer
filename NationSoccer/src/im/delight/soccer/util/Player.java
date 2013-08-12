@@ -36,9 +36,9 @@ public class Player implements Parcelable {
 	public static final int SKILL_SPEED = 1;
 	public static final int SKILL_JUMP = 2;
 	public static final int SKILL_POWER = 3;
-	private static final float FACTOR_SCALING_SPEED = 0.40f;
-	private static final float FACTOR_SCALING_JUMP = 0.40f;
-	private static final float FACTOR_SCALING_POWER = 0.40f;
+	private static final float FACTOR_SCALING_SPEED = 0.4f;
+	private static final float FACTOR_SCALING_JUMP = 0.36f;
+	private static final float FACTOR_SCALING_POWER = 0.32f;
 	public static final String SERIALIZATION_DELIMITER = "§";
 	private int mCountry;
 	private float mSpeed; // between 0.0 (slow) and 1.0 (fast)

@@ -71,4 +71,5 @@
 	<dimen name="content_padding_lr">12dp</dimen>
 	<dimen name="content_padding_tb">6dp</dimen>
 	<dimen name="button_corner_radius">6dp</dimen>
+	<dimen name="mainscreen_config_margin">6dp</dimen>
 </resources>

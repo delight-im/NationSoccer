@@ -2,42 +2,28 @@ package im.delight.soccer;
 
 import im.delight.soccer.R;
 import im.delight.soccer.util.Player;
-
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
 public class MyApp extends Application {
 
-	public static final int VOLUME_NONE = 0;
-	public static final int VOLUME_SOUND = 1;
-	public static final int VOLUME_ALL = 2;
+	public static final int VOLUME_OFF = 0;
+	public static final int VOLUME_ON = 1;
 	public static final String PREFERENCE_VOLUME = "setting_sound";
 	public static final String EXTRA_REQUEST_CODE = "requestCode";
 	public static final String PACKAGE_NAME = "im.delight.soccer";
 	/** Instance reference for singleton pattern */
 	private static MyApp mInstance;
 	private static Player[] mPlayerList;
-	/** Manages all sound files and can be used to play single sounds */
-	private SoundPool mSoundPool;
-	private boolean mMusicIsContinuing;
-	private AudioManager mAudioManager;
-	private boolean mLastMusicPlayFailed;
 	private SharedPreferences mPrefs;
-	private int mSoundID_Music;
-	private int mStreamID_Music;
 	
 	@Override
 	public void onCreate() {
 		mInstance = this;
-		mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		loadSounds();
 	}
 	
     @SuppressLint("NewApi")
@@ -83,105 +69,28 @@ public class MyApp extends Application {
 		return mPlayerList;
 	}
 	
-	public void setMusicIsContinuing(boolean enabled) {
-		mMusicIsContinuing = getVolumeMode() == MyApp.VOLUME_ALL && enabled;
-	}
-	
     public int getVolumeMode() {
     	if (mPrefs == null) {
-    		return VOLUME_ALL;
+    		return VOLUME_ON;
     	}
     	else {
     		try {
     			return Integer.parseInt(mPrefs.getString(PREFERENCE_VOLUME, getString(R.string.setting_sound_default)));
     		}
     		catch (Exception e) {
-    			return VOLUME_ALL;
+    			return VOLUME_ON;
     		}
     	}
     }
     
     public void switchVolumeMode(int oldValue) {
     	if (mPrefs != null) {
-    		int newValue = (oldValue+2) % 3;
-    		if (newValue == VOLUME_ALL) {
-    			setMusicEnabled(true);
-    		}
-    		else {
-    			setMusicEnabled(false);
-    		}
+    		final int newValue = (oldValue+1) % 2;
 			SharedPreferences.Editor prefsEdit = mPrefs.edit();
 			prefsEdit.putString(PREFERENCE_VOLUME, String.valueOf(newValue));
 			prefsEdit.commit();
     	}
     }
-	
-	public void setMusicEnabled(boolean enabled) {
-		synchronized (this) {
-			if (enabled) {
-				if (!mMusicIsContinuing || mStreamID_Music == 0) {
-					playMusic();
-				}
-				mMusicIsContinuing = false;
-			}
-			else {
-				if (mStreamID_Music != 0) {
-					if (!mMusicIsContinuing) {
-						mSoundPool.stop(mStreamID_Music);
-						mStreamID_Music = 0;
-					}
-				}
-			}
-			mLastMusicPlayFailed = false;
-		}
-	}
-	
-	private void loadSounds() {
-        mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
-        mSoundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
-			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-				if (status == 0) { // if successful
-					if (soundPool != null && mLastMusicPlayFailed && sampleId == mSoundID_Music) {
-						playMusic();
-					}
-				}
-			}
-        });
-        new Thread(new Runnable() {
-			public void run() {
-				synchronized (mSoundPool) {
-					try {
-						mSoundID_Music = mSoundPool.load(MyApp.this, R.raw.music_latin, 1);
-					}
-					catch (Exception e) { }
-				}
-			}
-        }).start();
-	}
-	
-	public void playMusic() {
-		new Thread() {
-			public void run() {
-				try {
-					if (mSoundID_Music != 0) {
-						float actualVolume = (float) mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-						float maxVolume = (float) mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-						float volume = actualVolume / maxVolume;
-						if (mSoundPool != null) {
-							int streamID = mSoundPool.play(mSoundID_Music, volume, volume, 0, -1, 1.0f);
-							synchronized (this) {
-								mStreamID_Music = streamID;
-								if (streamID == 0) {
-									mLastMusicPlayFailed = true;
-								}
-							}
-						}
-					}
-				}
-				catch (Exception e) { }
-			}
-		}.start();
-	}
 	
 	public static MyApp getInstance() {
 		return mInstance;

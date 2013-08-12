@@ -123,8 +123,7 @@
 	<string name="setting_sound">Sound</string>
 	<string-array name="setting_sound_human">
 		<item>Aus</item>
-		<item>Nur Sounds</item>
-		<item>Sounds + Musik</item>
+		<item>An</item>
 	</string-array>
 	<string name="skill_improved_jump">Deine Sprungkraft ist um %d%% gestiegen</string>
 	<string name="skill_improved_power">Deine Kraft ist um %d%% gestiegen</string>
@@ -133,6 +132,7 @@
 	<string name="skill_power">Stärke</string>
 	<string name="skill_speed">Tempo</string>
 	<string name="tap_to_leave">Tippen zum Verlassen</string>
+	<string name="tap_to_start">Tippen zum Starten</string>
 	<string name="tournament">Turnier</string>
 	<string name="yes">Ja</string>
 	<string name="you_lost">VERLOREN</string>

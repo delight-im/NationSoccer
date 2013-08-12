@@ -36,7 +36,6 @@ public class CareerScreen extends SherlockActivity {
 	private static final int LEVEL_FIRST_MATCH = 0;
 	private static final int LEVEL_FINISHED = 23; // 0 = introduction, 1-22 = 23 matches, 23 = the end
 	private Player mPlayerSelf;
-	private MyApp mApp;
 	private SharedPreferences mPrefs;
 	private int mCurrentLevel;
 	// DATA THAT NEEDS TO BE UPDATED THROUGHOUT THE CAREER BEGIN
@@ -55,7 +54,6 @@ public class CareerScreen extends SherlockActivity {
 	private View.OnClickListener mActionButtonClick_ChooseTeam = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-        	mApp.setMusicIsContinuing(true);
     		startActivityForResult(new Intent(CareerScreen.this, PlayerSelection.class), PlayerSelection.REQUEST_CODE_GET_CAREER_TEAM);
 		}
 	};
@@ -81,7 +79,6 @@ public class CareerScreen extends SherlockActivity {
     			gameIntent.putExtra(GameScreenSingle.EXTRA_SELF_IS_HOME, false);
 			}
 			gameIntent.putExtra(GameScreenSingle.EXTRA_IS_TOURNAMENT_MATCH, true);
-        	mApp.setMusicIsContinuing(false);
 			startActivityForResult(gameIntent, REQUEST_CODE_PLAY_GAME);
 		}
 	};
@@ -99,7 +96,6 @@ public class CareerScreen extends SherlockActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         setContentView(R.layout.career);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mApp = MyApp.getInstance();
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         final Player[] allPlayers = MyApp.getPlayerList();
         mPlayerList = new ArrayList<Player>(allPlayers.length);
@@ -233,13 +229,6 @@ public class CareerScreen extends SherlockActivity {
 	        editor.putString(PREFERENCE_SAVED_PLAYER, mPlayerSelf.toString());
         }
         MyApp.savePreferences(editor);
-        mApp.setMusicEnabled(false);
-    }
-    
-    @Override
-    protected void onResume() {
-    	super.onResume();
-    	mApp.setMusicEnabled(mApp.getVolumeMode() == MyApp.VOLUME_ALL);
     }
     
     private void updateCareer() {
@@ -289,15 +278,8 @@ public class CareerScreen extends SherlockActivity {
     
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-    	mApp.setMusicIsContinuing(true);
     	finish();
 		return true;
 	}
-    
-    @Override
-    public void onBackPressed() {
-    	mApp.setMusicIsContinuing(true);
-    	finish();
-    }
     
 }

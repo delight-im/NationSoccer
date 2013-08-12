@@ -3,7 +3,7 @@ package im.delight.soccer;
 import com.actionbarsherlock.app.SherlockFragment;
 import im.delight.soccer.R;
 import im.delight.soccer.util.Player;
-
+import im.delight.soccer.util.PlayerSelectionHandler;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,9 +24,10 @@ public class PlayerSelectionFragment extends SherlockFragment {
 	private int mPageCount;
 	private Player mPlayer;
 	private int mRequestCode;
+	private PlayerSelectionHandler mCallback;
 	private View.OnClickListener contentClick = new View.OnClickListener() {
 		public void onClick(View v) {
-			((PlayerSelection) getActivity()).selectPlayer(mPlayer);
+			mCallback.onSelectPlayer(mRequestCode, mPage, mPlayer);
 		}
 	};
 
@@ -44,6 +45,17 @@ public class PlayerSelectionFragment extends SherlockFragment {
     
     public PlayerSelectionFragment() {
     	super();
+    }
+    
+    @Override
+    public void onAttach(Activity activity) {
+    	super.onAttach(activity);
+    	if (activity instanceof PlayerSelectionHandler) {
+    		mCallback = (PlayerSelectionHandler) activity;
+    	}
+    	else {
+    		throw new RuntimeException("Activity must implement interface PlayerSelectionHandler");
+    	}
     }
     
     @Override
@@ -94,10 +106,7 @@ public class PlayerSelectionFragment extends SherlockFragment {
 			vBackward.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Activity activity = getActivity();
-					if (activity instanceof PlayerSelection) {
-						((PlayerSelection) activity).navigateTo(mPage-1);
-					}
+					mCallback.navigateTo(mPage-1);
 				}
 			});
 		}
@@ -106,10 +115,7 @@ public class PlayerSelectionFragment extends SherlockFragment {
 			vForward.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Activity activity = getActivity();
-					if (activity instanceof PlayerSelection) {
-						((PlayerSelection) activity).navigateTo(mPage+1);
-					}
+					mCallback.navigateTo(mPage+1);
 				}
 			});
 		}

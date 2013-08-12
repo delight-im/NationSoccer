@@ -47,7 +47,6 @@ public class StartScreen extends Activity {
         });
         findViewById(R.id.button_career).setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
-            	mApp.setMusicIsContinuing(true);
         		startActivity(new Intent(StartScreen.this, CareerScreen.class));
         	}
         });
@@ -62,7 +61,6 @@ public class StartScreen extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-            	mApp.setMusicIsContinuing(true);
         		startActivity(new Intent(StartScreen.this, im.delight.soccer.settings.Main.class));
 			}
 		});
@@ -90,31 +88,21 @@ public class StartScreen extends Activity {
     }
 
     private void showSoundStatus() {
-    	if (mApp.getVolumeMode() == MyApp.VOLUME_NONE) {
-    		ivSoundOnOff.setImageResource(R.drawable.volume_none);
-    	}
-    	else if (mApp.getVolumeMode() == MyApp.VOLUME_SOUND) {
-    		ivSoundOnOff.setImageResource(R.drawable.volume_sound);
+    	if (mApp.getVolumeMode() == MyApp.VOLUME_OFF) {
+    		ivSoundOnOff.setImageResource(R.drawable.volume_off);
     	}
     	else {
-    		ivSoundOnOff.setImageResource(R.drawable.volume_all);
+    		ivSoundOnOff.setImageResource(R.drawable.volume_on);
     	}
-    }
-    
-    protected void onPause() {
-    	super.onPause();
-    	mApp.setMusicEnabled(false);
     }
     
     protected void onResume() {
     	super.onResume();
     	showSoundStatus();
-    	mApp.setMusicEnabled(mApp.getVolumeMode() == MyApp.VOLUME_ALL);
     }
     
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
-    	mApp.setMusicIsContinuing(true);
 	    intent.putExtra(MyApp.EXTRA_REQUEST_CODE, requestCode);
 	    super.startActivityForResult(intent, requestCode);
     }
@@ -140,7 +128,6 @@ public class StartScreen extends Activity {
 	    			Intent gameIntent = new Intent(StartScreen.this, GameScreenSingle.class);
 	    			gameIntent.putExtra(GameScreenSingle.EXTRA_PLAYER_1, mPlayerSelf);
 	    			gameIntent.putExtra(GameScreenSingle.EXTRA_PLAYER_2, mPlayerOpponent);
-	            	mApp.setMusicIsContinuing(false);
 	    			startActivity(gameIntent);
     			}
     		}
@@ -155,7 +142,6 @@ public class StartScreen extends Activity {
     			if (mPlayerSelf != null) {
 	    			Intent tournamentIntent = new Intent(StartScreen.this, TournamentScreen.class);
 	    			tournamentIntent.putExtra(TournamentScreen.EXTRA_PLAYER_SELF, mPlayerSelf);
-	            	mApp.setMusicIsContinuing(true);
 	    			startActivity(tournamentIntent);
     			}
     		}

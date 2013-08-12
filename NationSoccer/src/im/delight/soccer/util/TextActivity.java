@@ -1,6 +1,5 @@
 package im.delight.soccer.util;
 
-import im.delight.soccer.MyApp;
 import im.delight.soccer.R;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -14,8 +13,6 @@ import android.widget.TextView;
 
 /** Abstract class that can be used to add a simple text-only Activity to the application. Just extend this class and implement getContentText() */
 public abstract class TextActivity extends SherlockActivity {
-
-	private MyApp mApp;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +44,6 @@ public abstract class TextActivity extends SherlockActivity {
 
         setContentView(layout, layoutParams);
     	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	    mApp = MyApp.getInstance();
     }
 	
 	/** Method to implement so that it returns the text to display that will then be used in TextView.setText() */
@@ -55,28 +51,9 @@ public abstract class TextActivity extends SherlockActivity {
 	
 	/** Method to implement so that it returns whether the given text for this Activity is HTML (true) or plain text (false) */
 	public abstract boolean isHTML();
-	
-	@Override
-    protected void onResume() {
-        super.onResume();
-        mApp.setMusicEnabled(mApp.getVolumeMode() == MyApp.VOLUME_ALL);
-    }
-
-	@Override
-    protected void onPause() {
-        super.onPause();
-        mApp.setMusicEnabled(false);
-    }
-	
-    @Override
-    public void onBackPressed() {
-    	mApp.setMusicIsContinuing(true);
-    	finish();
-    }
     
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-    	mApp.setMusicIsContinuing(true);
     	finish();
 		return true;
 	}

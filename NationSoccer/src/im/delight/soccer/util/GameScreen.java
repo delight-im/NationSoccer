@@ -20,6 +20,7 @@ public abstract class GameScreen extends BaseGameActivity {
 	public static final int PHRASE_GAME_TIME_DEFAULT = 7;
 	public static final int PHRASE_GAME_GOALS_DEFAULT = 8;
 	public static final int PHRASE_GAME_END_DEFAULT = 9;
+	public static final int PHRASE_TAP_TO_START = 10;
 	public static final String PREFERENCE_GAME_END = "setting_game_end";
 	public static final String PREFERENCE_GAME_TIME = "setting_game_time";
 	public static final String PREFERENCE_GAME_GOALS = "setting_game_goals";
@@ -27,7 +28,7 @@ public abstract class GameScreen extends BaseGameActivity {
 	public static final int FIELD_HEIGHT = 512;
 	public static final int CAMERA_WIDTH = 854;
 	public static final int CAMERA_HEIGHT = 512;
-	public static final int FRAMES_PER_SECOND = 40;
+	public static final int FRAMES_PER_SECOND = 35;
 	protected boolean mGameFinished;
 	protected SharedPreferences mPrefs;
 	
@@ -48,6 +49,7 @@ public abstract class GameScreen extends BaseGameActivity {
 			case PHRASE_GAME_TIME_DEFAULT: return getString(R.string.setting_game_time_default);
 			case PHRASE_GAME_GOALS_DEFAULT: return getString(R.string.setting_game_goals_default);
 			case PHRASE_GAME_END_DEFAULT: return getString(R.string.setting_game_end_default);
+			case PHRASE_TAP_TO_START: return getString(R.string.tap_to_start);
 			default: return "";
 		}
 	}

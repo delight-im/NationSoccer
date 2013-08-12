@@ -66,18 +66,15 @@ public class ResourcesManager {
 	public TextureRegion mFieldRight_TextureRegion;
 	public ITexture mFieldCenter_Texture;
 	public TextureRegion mFieldCenter_TextureRegion;
+	public ITexture mArrow_Texture;
+	public TextureRegion mArrow_TextureRegion;
 	// GAME SCREEN END
 	
 	private void loadSounds(int volumeMode) {
 		try {
-			if (volumeMode == MyApp.VOLUME_ALL) {
+			if (volumeMode == MyApp.VOLUME_ON) {
 				mAudio_Music = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), mActivity, SOUND_DIR+"crowd.ogg");
 				mAudio_Music.setLooping(true);
-			}
-			else {
-				mAudio_Music = null;
-			}
-			if (volumeMode == MyApp.VOLUME_ALL || volumeMode == MyApp.VOLUME_SOUND) {
 				mAudio_Whistle = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mActivity, SOUND_DIR+"whistle.ogg");
 				mAudio_Jump = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mActivity, SOUND_DIR+"jump.ogg");
 				mAudio_Applause = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mActivity, SOUND_DIR+"applause.ogg");
@@ -85,6 +82,7 @@ public class ResourcesManager {
 				mAudio_Kick = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), mActivity, SOUND_DIR+"kick.ogg");
 			}
 			else {
+				mAudio_Music = null;
 				mAudio_Whistle = null;
 				mAudio_Jump = null;
 				mAudio_Applause = null;
@@ -127,6 +125,10 @@ public class ResourcesManager {
 	public void GameScene_load(String player1Drawable, String player2Drawable, int volumeMode) {
 		// GRAPHICS BEGIN
 		try {
+			mArrow_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+"arrow.png", TextureOptions.BILINEAR);
+			mArrow_Texture.load();
+			mArrow_TextureRegion = TextureRegionFactory.extractFromTexture(mArrow_Texture);
+
 			mPlayer1_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+player1Drawable, TextureOptions.BILINEAR);
 			mPlayer1_Texture.load();
 			mPlayer1_TextureRegion = TextureRegionFactory.extractTiledFromTexture(mPlayer1_Texture, 2, 2);
@@ -165,6 +167,10 @@ public class ResourcesManager {
 	
 	public void GameScene_unload() {
 		// GRAPHICS BEGIN
+		if (mArrow_Texture != null) {
+			mArrow_Texture.unload();
+			mArrow_Texture = null;
+		}
 		if (mPlayer1_Texture != null) {
 			mPlayer1_Texture.unload();
 			mPlayer1_Texture = null;

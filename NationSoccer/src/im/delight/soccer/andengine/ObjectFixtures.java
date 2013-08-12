@@ -11,14 +11,14 @@ public class ObjectFixtures {
 	
 	public static FixtureDef getPlayer() {
 		if (mPlayerFixture == null) {
-			mPlayerFixture = PhysicsFactory.createFixtureDef(9.2f, 0.36f, 0.32f); // mass - bounce factor - friction
+			mPlayerFixture = PhysicsFactory.createFixtureDef(9.2f, 0.0f, 0.32f); // mass - bounce factor - friction
 		}
 		return mPlayerFixture;
 	}
 	
 	public static FixtureDef getBall() {
 		if (mBallFixture == null) {
-			mBallFixture = PhysicsFactory.createFixtureDef(2.2f, 0.95f, 0.35f); // mass - bounce factor - friction
+			mBallFixture = PhysicsFactory.createFixtureDef(2.2f, 0.85f, 0.35f); // mass - bounce factor - friction
 		}
 		return mBallFixture;
 	}

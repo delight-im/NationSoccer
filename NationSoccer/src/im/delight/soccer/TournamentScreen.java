@@ -27,7 +27,6 @@ public class TournamentScreen extends SherlockActivity {
 	public static final String EXTRA_PLAYER_SELF = "playerSelf";
 	private Tournament mTournament;
 	private Player mPlayerSelf;
-	private MyApp mApp;
 	private LinearLayout[] mRoundViews;
 	private View[] mCaptions;
 	private Button mPlayNow;
@@ -41,7 +40,6 @@ public class TournamentScreen extends SherlockActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         setContentView(R.layout.tournament);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mApp = MyApp.getInstance();
         mPlayerSelf = getIntent().getParcelableExtra(EXTRA_PLAYER_SELF);
         mTournament = new Tournament(16, MyApp.getPlayerList(), mPlayerSelf);
         mRoundViews = new LinearLayout[4];
@@ -70,7 +68,6 @@ public class TournamentScreen extends SherlockActivity {
         			gameIntent.putExtra(GameScreenSingle.EXTRA_SELF_IS_HOME, false);
     			}
     			gameIntent.putExtra(GameScreenSingle.EXTRA_IS_TOURNAMENT_MATCH, true);
-            	mApp.setMusicIsContinuing(false);
     			startActivityForResult(gameIntent, REQUEST_CODE_PLAY_GAME);
 			}
 		});
@@ -94,18 +91,6 @@ public class TournamentScreen extends SherlockActivity {
     			}
     		}
     	}
-    }
-    
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mApp.setMusicEnabled(false);
-    }
-    
-    @Override
-    protected void onResume() {
-    	super.onResume();
-    	mApp.setMusicEnabled(mApp.getVolumeMode() == MyApp.VOLUME_ALL);
     }
     
     private void updateTournamentList() {
@@ -217,15 +202,8 @@ public class TournamentScreen extends SherlockActivity {
     
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-    	mApp.setMusicIsContinuing(true);
     	finish();
 		return true;
 	}
-    
-    @Override
-    public void onBackPressed() {
-    	mApp.setMusicIsContinuing(true);
-    	finish();
-    }
     
 }

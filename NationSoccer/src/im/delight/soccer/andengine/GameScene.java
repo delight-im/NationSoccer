@@ -8,6 +8,7 @@ import org.andengine.audio.sound.Sound;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -48,6 +49,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	public static final float PLAYER_ACCELERATION_Y = 280000.0f;
 	public static final float PLAYER_MAX_SPEED_X = 14.0f;
 	public static final float PLAYER_MAX_SPEED_Y = 14.5f;
+	public static final float BALL_MAX_SPEED_Y = 22.0f;
 	/** Factor affecting the players' x-speed when up in the air */
 	public static final float PLAYER_AIR_BONUS_X = 1.4f;
 	public static final float BALL_KICK_ACCELERATION_Y = 2800.0f;
@@ -57,36 +59,50 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	public static final int GOALKICK_NONE = 0;
 	public static final int GOALKICK_LEFT = 1;
 	public static final int GOALKICK_RIGHT = 2;
+	/** When debug mode is set to this constant, any debug functions will be disabled */
+	public static final int DEBUG_NONE = 0;
+	/** When debug mode is set to this constant, sprite borders will be drawn to screen for physics verification etc. */
+	public static final int DEBUG_RENDER = 1;
+	/** When debug mode is set to this constant, players will stop moving after the first goal so that you can capture the screen */
+	//public static final int DEBUG_SCREENSHOT = 2; // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
 	public static final float FIELD_BASELINE_Y = GameScreen.FIELD_HEIGHT * 0.25f;
 	public static final float FIELD_GOALLINE_Y = GameScreen.FIELD_HEIGHT * 0.60f;
 	public static final float FIELD_CENTER_START = GameScreen.FIELD_WIDTH * 0.1f;
 	public static final float FIELD_CENTER_END = GameScreen.FIELD_WIDTH * 0.9f;
 	public static final float WALL_THICKNESS = 50; // thickness of the invisible walls that are the world's bounding box
 	public static final float GOAL_WIDTH = 122.0f;
-	public static final float PADDING_SCORE_TIME = 16.0f;
+	public static final float PADDING_TEXTS_OUTTER = 16.0f;
 	/** Format that is used to print the score line (Player 1, Player 2, Goals 1, Goals 2) **/
-	public static final String SCORE_FORMAT = "%1$3s %3$02d\n%2$3s %4$02d";
-	public static final String TIME_FORMAT = "%1$02d:%2$02d";
-	public static final int STATE_RUNNING = 1;
-	public static final int STATE_ENDED = 2;
-	public static final int STATE_EXTRA_TIME = 3;
-	public static final int DIRECTION_NONE = 0; // used for bitmask
-	public static final int DIRECTION_LEFT = 1; // used for bitmask
-	public static final int DIRECTION_RIGHT = 2; // used for bitmask
-	public static final int DIRECTION_UP = 4; // used for bitmask
-	public static final long EXCLAMATION_DISPLAY_DURATION = 1500;
-	public static final int EXCLAMATION_NONE = 0;
-	public static final int EXCLAMATION_GOAL = 1;
-	public static final int EXCLAMATION_OUT = 2;
+	private static final String SCORE_FORMAT = "%1$3s %3$02d\n%2$3s %4$02d";
+	private static final String TIME_FORMAT = "%1$02d:%2$02d";
+	private static final int STATE_RUNNING = 1;
+	private static final int STATE_ENDED = 2;
+	private static final int STATE_EXTRA_TIME = 3;
+	private static final int STATE_WAITING = 4;
+	private static final int DIRECTION_NONE = 0; // used for bitmask
+	private static final int DIRECTION_LEFT = 1; // used for bitmask
+	private static final int DIRECTION_RIGHT = 2; // used for bitmask
+	private static final int DIRECTION_UP = 4; // used for bitmask
+	private static final long EXCLAMATION_DISPLAY_DURATION = 1500;
+	private static final int EXCLAMATION_NONE = 0;
+	private static final int EXCLAMATION_GOAL = 1;
+	private static final int EXCLAMATION_OUT = 2;
+	private static final float TUTORIAL_LINE_WIDTH = 12.0f;
+	private static final float TUTORIAL_TEXT_BOX_WIDTH = 396.0f;
+	private static final float TUTORIAL_TEXT_BOX_HEIGHT = 64.0f;
+	private static final float TUTORIAL_TEXT_MARGIN_BOTTOM = 8.0f;
+	private static final float TUTORIAL_TEXT_BOX_ALPHA = 0.5f;
 	/** The gravity for this scene */
-	public static final float GRAVITY = -28.0f;
-	public static final boolean DEBUG = false;
+	private static final float GRAVITY = -28.0f;
+	/** When debug is enabled, sprite borders will be drawn to the screen and players will stop moving after first goal */
+	private static final int DEBUG = DEBUG_NONE;
 	/** Number of time steps that an update of scores and time occurs after */
-	public static final int TIME_STEP_INTERVAL = 30;
+	private static final int TIME_STEP_INTERVAL = 30;
 	/** Singleton holder for the match to simulate */
 	private static Match mMatch;
 	private static Vector2[] mPlayerVertices;
 	private HUD mHUD;
+	private HUD mTutorial;
 	private Text mTimeText;
 	private Text mExclamation;
 	private Text mScoreText;
@@ -100,36 +116,36 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private TiledSprite mPlayer1_Sprite;
 	private TiledSprite mPlayer2_Sprite;
 	private Sprite mBall_Sprite;
-	private Body mPlayer1_Body;
-	private Body mPlayer2_Body;
-	private Body mBall_Body;
-	private Vector2 mBall_Movement = new Vector2();
+	private volatile Body mPlayer1_Body;
+	private volatile Body mPlayer2_Body;
+	private volatile Body mBall_Body;
 	/** Timestamp (in milliseconds) when the game (that has already ended) may be closed by tapping on the screen */
 	private long mStartTime;
 	private int mGoalLimit;
 	/** Positive number if game is limited by time (in seconds) or -1 if game is limited by goal count */
 	private int mGameDuration;
 	/** Whether the game is running, in extra time or has already ended */
-	private int mState;
-	private boolean mPendingKickoff;
-	private int mPendingGoalkick;
-	private int mTimestepCounter;
-	private Fixture mCollisionFixture1;
-	private Fixture mCollisionFixture2;
+	private volatile int mState;
+	private volatile boolean mPendingKickoff;
+	private volatile int mPendingGoalkick;
+	private volatile int mTimestepCounter;
+	private volatile Fixture mCollisionFixture1;
+	private volatile Fixture mCollisionFixture2;
 	private int mExclamationText;
 	private long mExclamationExpires;
+	//private boolean mPlayersMayMove = true; // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
 	
 	private static class AIMoves {
 		
-		private static boolean mHuman_closeLeft_blockingBall;
-		private static boolean mHuman_closeRight_blockingBall;
-		private static boolean mBall_closeAndBelow;
-		private static boolean mBall_shortlyAbove;
-		private static float mComputer_x;
-		private static float mComputer_y;
-		private static float mBall_x;
-		private static float mBall_y;
-		private static float mHuman_x;
+		private static volatile boolean mHuman_closeLeft_blockingBall;
+		private static volatile boolean mHuman_closeRight_blockingBall;
+		private static volatile boolean mBall_closeAndBelow;
+		private static volatile boolean mBall_shortlyAbove;
+		private static volatile float mComputer_x;
+		private static volatile float mComputer_y;
+		private static volatile float mBall_x;
+		private static volatile float mBall_y;
+		private static volatile float mHuman_x;
 
 	}
 	
@@ -138,20 +154,23 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		private static final int FIELD_SCORE = 1;
 		private static final int FIELD_TIME = 2;
 		private static final int FIELD_EXCLAMATION = 3;
-		private static final int FIELD_BOTTOMTEXT = 4;
+		private static final int FIELD_TAP_TO_LEAVE = 4;
+		private static final int FIELD_TAP_TO_START = 5;
 		private static final String mEmpty = "";
 		private static String mGoal;
 		private static String mOut;
 		private static String mYouWon;
 		private static String mYouLost;
 		private static String mTapToLeave;
+		private static String mTapToStart;
 		
 		private static String getPossibleCharacters(final int fieldID) {
 			switch (fieldID) {
 				case FIELD_SCORE: return "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
 				case FIELD_TIME: return "0123456789:";
 				case FIELD_EXCLAMATION: return mGoal+mOut+mYouWon+mYouLost;
-				case FIELD_BOTTOMTEXT: return mTapToLeave;
+				case FIELD_TAP_TO_LEAVE: return mTapToLeave;
+				case FIELD_TAP_TO_START: return mTapToStart;
 				default: return "";
 			}
 		}
@@ -160,29 +179,36 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	
 	private static class PlayerData {
 
-		private static float mPlayer1_factorSpeed;
-		private static float mPlayer1_factorJump;
-		private static float mPlayer1_factorPower;
-		private static boolean mPlayer1_isLookingLeft;
-		private static boolean mPlayer1_isJumping;
-		private static boolean mPlayer1_isBoing;
-		private static Vector2 mPlayer1_Movement = new Vector2();
-		private static Vector2 mPlayer1_Speed = new Vector2();
-		private static float mPlayer1_currentMaxSpeed_X;
+		private static volatile float mPlayer1_factorSpeed;
+		private static volatile float mPlayer1_factorJump;
+		private static volatile float mPlayer1_factorPower;
+		private static volatile boolean mPlayer1_isLookingLeft;
+		private static volatile boolean mPlayer1_isJumping;
+		private static volatile boolean mPlayer1_isBoing;
+		private static volatile Vector2 mPlayer1_Movement = new Vector2();
+		private static volatile Vector2 mPlayer1_Speed = new Vector2();
+		private static volatile float mPlayer1_currentMaxSpeed_X;
 
-		private static float mPlayer2_factorSpeed;
-		private static float mPlayer2_factorJump;
-		private static float mPlayer2_factorPower;
-		private static boolean mPlayer2_isLookingLeft;
-		private static boolean mPlayer2_isJumping;
-		private static boolean mPlayer2_isBoing;
-		private static Vector2 mPlayer2_Movement = new Vector2();
-		private static Vector2 mPlayer2_Speed = new Vector2();
-		private static float mPlayer2_currentMaxSpeed_X;
+		private static volatile float mPlayer2_factorSpeed;
+		private static volatile float mPlayer2_factorJump;
+		private static volatile float mPlayer2_factorPower;
+		private static volatile boolean mPlayer2_isLookingLeft;
+		private static volatile boolean mPlayer2_isJumping;
+		private static volatile boolean mPlayer2_isBoing;
+		private static volatile Vector2 mPlayer2_Movement = new Vector2();
+		private static volatile Vector2 mPlayer2_Speed = new Vector2();
+		private static volatile float mPlayer2_currentMaxSpeed_X;
 
 	}
 	
-	public static final boolean isDebug() {
+	private static class BallData {
+		
+		private static volatile Vector2 mMovement = new Vector2();
+		private static volatile Vector2 mSpeed = new Vector2();
+
+	}
+	
+	public static final int getDebug() {
 		return DEBUG;
 	}
 	
@@ -206,11 +232,11 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		Phrases.mTapToLeave = mActivity.getPhrase(GameScreen.PHRASE_TAP_TO_LEAVE);
 		Phrases.mYouLost = mActivity.getPhrase(GameScreen.PHRASE_YOU_LOST);
 		Phrases.mYouWon = mActivity.getPhrase(GameScreen.PHRASE_YOU_WON);
+		Phrases.mTapToStart = mActivity.getPhrase(GameScreen.PHRASE_TAP_TO_START);
 	}
 
 	@Override
 	public void createScene() {
-		mStartTime = System.currentTimeMillis();
 		if (mActivity.getPreference(GameScreen.PREFERENCE_GAME_END, mActivity.getPhrase(GameScreen.PHRASE_GAME_END_DEFAULT)).equals("time")) { // game is set to end after a certain period of time
 			mGoalLimit = -1; // do not a goal limit
 			try {
@@ -229,54 +255,11 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			}
 			mGameDuration = -1; // do not use a time limit (this is not a count-down game)
 		}
-		mState = STATE_RUNNING;
+		mState = STATE_WAITING;
 		createBackground();
 		createPlayerData();
 		createPhrases();
-		createHUD();
-		createPhysics();
-		createWorldBoundaries();
-		createSprites();
-		
-		registerUpdateHandler(new IUpdateHandler() {
-			@Override
-			public void onUpdate(float pSecondsElapsed) {
-				if (isPendingKickoff()) {
-					initKickoff();
-					setPendingKickoff(false);
-				}
-				else if (getPendingGoalkick() != GOALKICK_NONE) {
-					initGoalkick(getPendingGoalkick());
-					setPendingGoalkick(GOALKICK_NONE);
-				}
-				else if (mBall_Movement.y != 0.0f) {
-					mBall_Body.applyForce(mBall_Movement, mBall_Body.getWorldCenter());
-					mBall_Movement.set(0.0f, 0.0f);
-				}
-				else {
-					makeHumanMoves();
-					makeAIMoves();
-				}
-				if (mTimestepCounter == 0) {
-					updateScore();
-				}
-				mTimestepCounter = (mTimestepCounter+1) % TIME_STEP_INTERVAL;
-				if (mExclamationExpires == Long.MAX_VALUE) {
-					mExclamationExpires = System.currentTimeMillis()+EXCLAMATION_DISPLAY_DURATION;
-					updateExclamation();
-				}
-				else if (mExclamationExpires > 0 && mExclamationExpires < System.currentTimeMillis()) {
-					mExclamationText = EXCLAMATION_NONE;
-					updateExclamation();
-				}
-			}
-			@Override
-			public void reset() { }
-		});
-
-		mCamera.setBounds(0, 0, GameScreen.FIELD_WIDTH, GameScreen.FIELD_HEIGHT);
-		mCamera.setBoundsEnabled(true);
-		mCamera.setChaseEntity(mBall_Sprite);
+		createTutorial();
 
 		setOnSceneTouchListener(this);
 		playMusic(mResourcesManager.mAudio_Music);
@@ -307,6 +290,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	}
 	
 	private void makeAIMoves() {
+		//if (getDebug() == DEBUG_SCREENSHOT && !mPlayersMayMove) { return; } // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
     	if (PlayerData.mPlayer2_isJumping) { // when in the air (jumping)
     		applyAcceleration(SPRITE_PLAYER_2, PlayerData.mPlayer2_isLookingLeft ? -PLAYER_ACCELERATION_X : PLAYER_ACCELERATION_X, 0.0f); // continue to accelerate in same direction
     	}
@@ -319,13 +303,13 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 
 	    	AIMoves.mHuman_closeLeft_blockingBall = AIMoves.mHuman_x < AIMoves.mComputer_x && AIMoves.mHuman_x > (AIMoves.mComputer_x - 160.0f) && AIMoves.mHuman_x > AIMoves.mBall_x;
 	    	AIMoves.mHuman_closeRight_blockingBall = AIMoves.mHuman_x > AIMoves.mComputer_x && AIMoves.mHuman_x < (AIMoves.mComputer_x + 160.0f) && AIMoves.mHuman_x < AIMoves.mBall_x;
-	    	AIMoves.mBall_closeAndBelow = Math.abs(AIMoves.mBall_x - AIMoves.mComputer_x) < 180.0f && AIMoves.mBall_y < AIMoves.mComputer_y;
-	    	AIMoves.mBall_shortlyAbove = Math.abs(AIMoves.mBall_x - AIMoves.mComputer_x) < 80.0f && AIMoves.mBall_y > AIMoves.mComputer_y;
+	    	AIMoves.mBall_closeAndBelow = Math.abs(AIMoves.mBall_x - AIMoves.mComputer_x) < 170.0f && AIMoves.mBall_y < AIMoves.mComputer_y && mBall_Body.getLinearVelocity().y < 0;
+	    	AIMoves.mBall_shortlyAbove = Math.abs(AIMoves.mBall_x - AIMoves.mComputer_x) < 90.0f && AIMoves.mBall_y > AIMoves.mComputer_y && mBall_Body.getLinearVelocity().y < 0;
 
-			if (AIMoves.mBall_x > AIMoves.mComputer_x) {
+			if (AIMoves.mBall_x > AIMoves.mComputer_x) { // ball is on player's right (towards own goal)
 				applyAcceleration(SPRITE_PLAYER_2, PLAYER_ACCELERATION_X, ((AIMoves.mBall_closeAndBelow || AIMoves.mHuman_closeRight_blockingBall) ? PLAYER_ACCELERATION_Y : 0.0f));
 	    	}
-			else {
+			else { // ball is on player's left (towards opponent's goal)
 				applyAcceleration(SPRITE_PLAYER_2, (AIMoves.mBall_shortlyAbove ? 0.0f : -PLAYER_ACCELERATION_X), (AIMoves.mHuman_closeLeft_blockingBall ? PLAYER_ACCELERATION_Y : 0.0f)); // do never jump when between ball and own goal
 	    	}
     	}
@@ -351,24 +335,28 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			}
 			accX *= PlayerData.mPlayer1_factorPower;
 			accY *= PlayerData.mPlayer1_factorPower;
-			PlayerData.mPlayer1_Movement.set(accX, accY * PlayerData.mPlayer1_factorJump);
-			mPlayer1_Body.applyForce(PlayerData.mPlayer1_Movement, mPlayer1_Body.getWorldCenter());
+			mPlayer1_Body.applyForce(PlayerData.mPlayer1_Movement.set(accX, accY * PlayerData.mPlayer1_factorJump), mPlayer1_Body.getWorldCenter());
 			if (accY > 0) {
 				PlayerData.mPlayer1_isJumping = true;
 				playSound(mResourcesManager.mAudio_Jump);
 			}
-			PlayerData.mPlayer1_Speed = mPlayer1_Body.getLinearVelocity();
 			PlayerData.mPlayer1_currentMaxSpeed_X = PLAYER_MAX_SPEED_X * PlayerData.mPlayer1_factorSpeed;
-			if (PlayerData.mPlayer1_Speed.x > PlayerData.mPlayer1_currentMaxSpeed_X) {
-				PlayerData.mPlayer1_Speed.set(PlayerData.mPlayer1_currentMaxSpeed_X, PlayerData.mPlayer1_Speed.y);
+			if (PlayerData.mPlayer1_isJumping) {
+				PlayerData.mPlayer1_currentMaxSpeed_X *= (2+PLAYER_AIR_BONUS_X) / 3;
 			}
-			else if (PlayerData.mPlayer1_Speed.x < -PlayerData.mPlayer1_currentMaxSpeed_X) {
-				PlayerData.mPlayer1_Speed.set(-PlayerData.mPlayer1_currentMaxSpeed_X, PlayerData.mPlayer1_Speed.y);
+			synchronized (PlayerData.mPlayer1_Speed) {
+				PlayerData.mPlayer1_Speed = mPlayer1_Body.getLinearVelocity();
+				if (PlayerData.mPlayer1_Speed.x > PlayerData.mPlayer1_currentMaxSpeed_X) {
+					PlayerData.mPlayer1_Speed.set(PlayerData.mPlayer1_currentMaxSpeed_X, PlayerData.mPlayer1_Speed.y);
+				}
+				else if (PlayerData.mPlayer1_Speed.x < -PlayerData.mPlayer1_currentMaxSpeed_X) {
+					PlayerData.mPlayer1_Speed.set(-PlayerData.mPlayer1_currentMaxSpeed_X, PlayerData.mPlayer1_Speed.y);
+				}
+				if (PlayerData.mPlayer1_Speed.y > (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer1_factorJump)) {
+					PlayerData.mPlayer1_Speed.set(PlayerData.mPlayer1_Speed.x, (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer1_factorJump));
+				}
+				mPlayer1_Body.setLinearVelocity(PlayerData.mPlayer1_Speed);
 			}
-			if (PlayerData.mPlayer1_Speed.y > (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer1_factorJump)) {
-				PlayerData.mPlayer1_Speed.set(PlayerData.mPlayer1_Speed.x, (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer1_factorJump));
-			}
-			mPlayer1_Body.setLinearVelocity(PlayerData.mPlayer1_Speed);
 		}
 		else if (spriteID == SPRITE_PLAYER_2) {
 			if (PlayerData.mPlayer2_isJumping) {
@@ -377,24 +365,28 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			}
 			accX *= PlayerData.mPlayer2_factorPower;
 			accY *= PlayerData.mPlayer2_factorPower;
-			PlayerData.mPlayer2_Movement.set(accX, accY * PlayerData.mPlayer2_factorJump);
-			mPlayer2_Body.applyForce(PlayerData.mPlayer2_Movement, mPlayer2_Body.getWorldCenter());
+			mPlayer2_Body.applyForce(PlayerData.mPlayer2_Movement.set(accX, accY * PlayerData.mPlayer2_factorJump), mPlayer2_Body.getWorldCenter());
 			if (accY > 0) {
 				PlayerData.mPlayer2_isJumping = true;
 				playSound(mResourcesManager.mAudio_Jump);
 			}
-			PlayerData.mPlayer2_Speed = mPlayer2_Body.getLinearVelocity();
 			PlayerData.mPlayer2_currentMaxSpeed_X = PLAYER_MAX_SPEED_X * PlayerData.mPlayer2_factorSpeed;
-			if (PlayerData.mPlayer2_Speed.x > PlayerData.mPlayer2_currentMaxSpeed_X) {
-				PlayerData.mPlayer2_Speed.set(PlayerData.mPlayer2_currentMaxSpeed_X, PlayerData.mPlayer2_Speed.y);
+			if (PlayerData.mPlayer2_isJumping) {
+				PlayerData.mPlayer2_currentMaxSpeed_X *= (2+PLAYER_AIR_BONUS_X) / 3;
 			}
-			else if (PlayerData.mPlayer2_Speed.x < -PlayerData.mPlayer2_currentMaxSpeed_X) {
-				PlayerData.mPlayer2_Speed.set(-PlayerData.mPlayer2_currentMaxSpeed_X, PlayerData.mPlayer2_Speed.y);
+			synchronized (PlayerData.mPlayer2_Speed) {
+				PlayerData.mPlayer2_Speed = mPlayer2_Body.getLinearVelocity();
+				if (PlayerData.mPlayer2_Speed.x > PlayerData.mPlayer2_currentMaxSpeed_X) {
+					PlayerData.mPlayer2_Speed.set(PlayerData.mPlayer2_currentMaxSpeed_X, PlayerData.mPlayer2_Speed.y);
+				}
+				else if (PlayerData.mPlayer2_Speed.x < -PlayerData.mPlayer2_currentMaxSpeed_X) {
+					PlayerData.mPlayer2_Speed.set(-PlayerData.mPlayer2_currentMaxSpeed_X, PlayerData.mPlayer2_Speed.y);
+				}
+				if (PlayerData.mPlayer2_Speed.y > (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer2_factorJump)) {
+					PlayerData.mPlayer2_Speed.set(PlayerData.mPlayer2_Speed.x, (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer2_factorJump));
+				}
+				mPlayer2_Body.setLinearVelocity(PlayerData.mPlayer2_Speed);
 			}
-			if (PlayerData.mPlayer2_Speed.y > (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer2_factorJump)) {
-				PlayerData.mPlayer2_Speed.set(PlayerData.mPlayer2_Speed.x, (PLAYER_MAX_SPEED_Y * PlayerData.mPlayer2_factorJump));
-			}
-			mPlayer2_Body.setLinearVelocity(PlayerData.mPlayer2_Speed);
 		}
 		if (accX > 1.0f) { // 1.0 is arbitrary comparison for positive/negative
 			setDirection(spriteID, DIRECTION_RIGHT);
@@ -447,16 +439,13 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mBackground_Sprite = new RepeatingSpriteBackground(GameScreen.CAMERA_WIDTH, GameScreen.CAMERA_HEIGHT, mResourcesManager.mBackground_TextureRegion, mVertexManager);
 		setBackground(mBackground_Sprite);
 		
+		// create field marks that will be attached to the scene as soon as the game starts
 		mFieldLeft_Sprite = new Sprite(256, GameScreen.CAMERA_HEIGHT/2, mResourcesManager.mFieldLeft_TextureRegion, mVertexManager);
 		mFieldLeft_Sprite.setCullingEnabled(true); // don't render this sprite if it is not visible on the screen
 		mFieldRight_Sprite = new Sprite(GameScreen.FIELD_WIDTH-256, GameScreen.CAMERA_HEIGHT/2, mResourcesManager.mFieldRight_TextureRegion, mVertexManager);
 		mFieldRight_Sprite.setCullingEnabled(true); // don't render this sprite if it is not visible on the screen
 		mFieldCenter_Sprite = new Sprite(GameScreen.FIELD_WIDTH/2, GameScreen.CAMERA_HEIGHT/2, mResourcesManager.mFieldCenter_TextureRegion, mVertexManager);
 		mFieldCenter_Sprite.setCullingEnabled(true); // don't render this sprite if it is not visible on the screen
-		
-		attachChild(mFieldLeft_Sprite);
-		attachChild(mFieldRight_Sprite);
-		attachChild(mFieldCenter_Sprite);
 	}
 	
 	/** Create three walls (left, ground, right) as the field's boundaries (open at the top) */
@@ -487,6 +476,11 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	}
 	
 	private void createSprites() {
+		// attach field marks that have been created in createBackground()
+		attachChild(mFieldLeft_Sprite);
+		attachChild(mFieldRight_Sprite);
+		attachChild(mFieldCenter_Sprite);
+
 		float[] startingPosition;
 
 		// CREATE PLAYER 1 BEGIN
@@ -532,7 +526,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		attachChild(mPlayer2_Sprite);
 		attachChild(mBall_Sprite);
 		
-		if (isDebug()) {
+		if (getDebug() == DEBUG_RENDER) {
 			DebugRenderer debugger = new DebugRenderer(mPhysicsWorld, mVertexManager);
 			attachChild(debugger);
 		}
@@ -570,6 +564,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	}
 	
 	private void initKickoff() {
+		//mPlayersMayMove = false; // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
 		float[] startingPosition;
 		resetSpeeds();
 
@@ -634,13 +629,131 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mPhysicsWorld.setContactListener(this);
 	}
 	
+	private static class TutorialEntities {
+
+		private static Line mLine_Horizontal;
+		private static Line mLine_VerticalTop1;
+		private static Line mLine_VerticalTop2;
+		private static Line mLine_VerticalBottom;
+		private static Sprite mArrow_TopLeft;
+		private static Sprite mArrow_TopCenter;
+		private static Sprite mArrow_TopRight;
+		private static Sprite mArrow_BottomLeft;
+		private static Sprite mArrow_BottomRight;
+		private static Rectangle mText_Box;
+		private static Text mText_Text;
+
+	}
+	
+	private void closeTutorial() {
+		mCamera.setHUD(null);
+		mTutorial.setVisible(false);
+		if (TutorialEntities.mLine_Horizontal != null) {
+			TutorialEntities.mLine_Horizontal.detachSelf();
+			TutorialEntities.mLine_Horizontal.dispose();
+		}
+		if (TutorialEntities.mLine_VerticalTop1 != null) {
+			TutorialEntities.mLine_VerticalTop1.detachSelf();
+			TutorialEntities.mLine_VerticalTop1.dispose();
+		}
+		if (TutorialEntities.mLine_VerticalTop2 != null) {
+			TutorialEntities.mLine_VerticalTop2.detachSelf();
+			TutorialEntities.mLine_VerticalTop2.dispose();
+		}
+		if (TutorialEntities.mLine_VerticalBottom != null) {
+			TutorialEntities.mLine_VerticalBottom.detachSelf();
+			TutorialEntities.mLine_VerticalBottom.dispose();
+		}
+		if (TutorialEntities.mArrow_TopLeft != null) {
+			TutorialEntities.mArrow_TopLeft.detachSelf();
+			TutorialEntities.mArrow_TopLeft.dispose();
+		}
+		if (TutorialEntities.mArrow_TopCenter != null) {
+			TutorialEntities.mArrow_TopCenter.detachSelf();
+			TutorialEntities.mArrow_TopCenter.dispose();
+		}
+		if (TutorialEntities.mArrow_TopRight != null) {
+			TutorialEntities.mArrow_TopRight.detachSelf();
+			TutorialEntities.mArrow_TopRight.dispose();
+		}
+		if (TutorialEntities.mArrow_BottomLeft != null) {
+			TutorialEntities.mArrow_BottomLeft.detachSelf();
+			TutorialEntities.mArrow_BottomLeft.dispose();
+		}
+		if (TutorialEntities.mArrow_BottomRight != null) {
+			TutorialEntities.mArrow_BottomRight.detachSelf();
+			TutorialEntities.mArrow_BottomRight.dispose();
+		}
+		if (TutorialEntities.mText_Box != null) {
+			TutorialEntities.mText_Box.detachSelf();
+			TutorialEntities.mText_Box.dispose();
+		}
+		if (TutorialEntities.mText_Text != null) {
+			TutorialEntities.mText_Text.detachSelf();
+			TutorialEntities.mText_Text.dispose();
+		}
+		mTutorial.detachSelf();
+		mTutorial.dispose();
+		mTutorial = null;
+	}
+	
+	private void createTutorial() {
+		mTutorial = new HUD(); // create fixed HUD for tutorial display
+		
+		TutorialEntities.mLine_Horizontal = new Line(0.0f, GameScreen.CAMERA_HEIGHT/2, GameScreen.CAMERA_WIDTH, GameScreen.CAMERA_HEIGHT/2, TUTORIAL_LINE_WIDTH, mVertexManager);
+		TutorialEntities.mLine_Horizontal.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
+		mTutorial.attachChild(TutorialEntities.mLine_Horizontal);
+		
+		TutorialEntities.mLine_VerticalTop1 = new Line(GameScreen.CAMERA_WIDTH*1/3, GameScreen.CAMERA_HEIGHT/2+TUTORIAL_LINE_WIDTH/4+1, GameScreen.CAMERA_WIDTH*1/3, GameScreen.CAMERA_HEIGHT, TUTORIAL_LINE_WIDTH, mVertexManager);
+		TutorialEntities.mLine_VerticalTop1.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
+		mTutorial.attachChild(TutorialEntities.mLine_VerticalTop1);
+		
+		TutorialEntities.mLine_VerticalTop2 = new Line(GameScreen.CAMERA_WIDTH*2/3, GameScreen.CAMERA_HEIGHT/2+TUTORIAL_LINE_WIDTH/4+1, GameScreen.CAMERA_WIDTH*2/3, GameScreen.CAMERA_HEIGHT, TUTORIAL_LINE_WIDTH, mVertexManager);
+		TutorialEntities.mLine_VerticalTop2.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
+		mTutorial.attachChild(TutorialEntities.mLine_VerticalTop2);
+		
+		TutorialEntities.mLine_VerticalBottom = new Line(GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_BOX_HEIGHT, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/2-TUTORIAL_LINE_WIDTH/4-1, TUTORIAL_LINE_WIDTH, mVertexManager);
+		TutorialEntities.mLine_VerticalBottom.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
+		mTutorial.attachChild(TutorialEntities.mLine_VerticalBottom);
+		
+		TutorialEntities.mArrow_TopLeft = new Sprite(GameScreen.CAMERA_WIDTH*1/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
+		TutorialEntities.mArrow_TopLeft.setRotation(-45.0f);
+		mTutorial.attachChild(TutorialEntities.mArrow_TopLeft);
+		
+		TutorialEntities.mArrow_TopCenter = new Sprite(GameScreen.CAMERA_WIDTH*3/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
+		mTutorial.attachChild(TutorialEntities.mArrow_TopCenter);
+
+		TutorialEntities.mArrow_TopRight = new Sprite(GameScreen.CAMERA_WIDTH*5/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
+		TutorialEntities.mArrow_TopRight.setRotation(45.0f);
+		mTutorial.attachChild(TutorialEntities.mArrow_TopRight);
+		
+		TutorialEntities.mArrow_BottomLeft = new Sprite(GameScreen.CAMERA_WIDTH*1/4, GameScreen.CAMERA_HEIGHT*1/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
+		TutorialEntities.mArrow_BottomLeft.setRotation(-90.0f);
+		mTutorial.attachChild(TutorialEntities.mArrow_BottomLeft);
+		
+		TutorialEntities.mArrow_BottomRight = new Sprite(GameScreen.CAMERA_WIDTH*3/4, GameScreen.CAMERA_HEIGHT*1/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
+		TutorialEntities.mArrow_BottomRight.setRotation(90.0f);
+		mTutorial.attachChild(TutorialEntities.mArrow_BottomRight);
+		
+		TutorialEntities.mText_Box = new Rectangle(GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_BOX_HEIGHT/2, TUTORIAL_TEXT_BOX_WIDTH, TUTORIAL_TEXT_BOX_HEIGHT, mVertexManager);
+		TutorialEntities.mText_Box.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
+		mTutorial.attachChild(TutorialEntities.mText_Box);
+		
+		TutorialEntities.mText_Text = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TAP_TO_START), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
+		TutorialEntities.mText_Text.setColor(1.0f, 1.0f, 1.0f);
+		updateText(TutorialEntities.mText_Text, Phrases.mTapToStart, GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_MARGIN_BOTTOM, TEXT_HALIGN_CENTER, TEXT_VALIGN_BOTTOM);
+		mTutorial.attachChild(TutorialEntities.mText_Text);
+		
+		mCamera.setHUD(mTutorial);
+	}
+	
 	private void createHUD() {
 		mHUD = new HUD(); // create fixed HUD for static text display
 		
 		mTimeText = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TIME), new TextOptions(HorizontalAlign.LEFT), mVertexManager); // prepare memory with all possible chars
 		mExclamation = new Text(0, 0, mResourcesManager.mFontBig, Phrases.getPossibleCharacters(Phrases.FIELD_EXCLAMATION), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
 		mScoreText = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_SCORE), new TextOptions(HorizontalAlign.RIGHT), mVertexManager); // prepare memory with all possible chars
-		mBottomText = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_BOTTOMTEXT), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
+		mBottomText = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TAP_TO_LEAVE), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
 		updateScore();
 		updateExclamation();
 		updateText(mBottomText, Phrases.mEmpty, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/3, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
@@ -662,7 +775,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	
 	private void updateExclamation() {
 		if (mState != STATE_ENDED) {
-			updateText(mExclamation, mExclamationText == EXCLAMATION_GOAL ? Phrases.mGoal : (mExclamationText == EXCLAMATION_OUT ? Phrases.mOut : Phrases.mEmpty), GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT-PADDING_SCORE_TIME, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
+			updateText(mExclamation, mExclamationText == EXCLAMATION_GOAL ? Phrases.mGoal : (mExclamationText == EXCLAMATION_OUT ? Phrases.mOut : Phrases.mEmpty), GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT-PADDING_TEXTS_OUTTER, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
 		}
 	}
 	
@@ -673,7 +786,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
      */
     public void updateScore(long gameTime, boolean isLimitedByGoals) {
     	if (mState != STATE_ENDED) {
-    		updateText(mScoreText, String.format(SCORE_FORMAT, mMatch.getPlayerHome().getShortName(), mMatch.getPlayerGuest().getShortName(), mMatch.getGoalsHome(), mMatch.getGoalsGuest()), GameScreen.CAMERA_WIDTH-PADDING_SCORE_TIME, GameScreen.CAMERA_HEIGHT-PADDING_SCORE_TIME, TEXT_HALIGN_RIGHT, TEXT_VALIGN_TOP);
+    		updateText(mScoreText, String.format(SCORE_FORMAT, mMatch.getPlayerHome().getShortName(), mMatch.getPlayerGuest().getShortName(), mMatch.getGoalsHome(), mMatch.getGoalsGuest()), GameScreen.CAMERA_WIDTH-PADDING_TEXTS_OUTTER, GameScreen.CAMERA_HEIGHT-PADDING_TEXTS_OUTTER, TEXT_HALIGN_RIGHT, TEXT_VALIGN_TOP);
     	}
     	if (gameTime >= 0) {
     		mTimeText_Text = String.format(TIME_FORMAT, (int) gameTime/60, gameTime % 60);
@@ -689,7 +802,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
     		}
     	}
     	if (mState != STATE_ENDED) {
-    		updateText(mTimeText, String.valueOf(mTimeText_Text), PADDING_SCORE_TIME, GameScreen.CAMERA_HEIGHT-PADDING_SCORE_TIME, TEXT_HALIGN_LEFT, TEXT_VALIGN_TOP);
+    		updateText(mTimeText, String.valueOf(mTimeText_Text), PADDING_TEXTS_OUTTER, GameScreen.CAMERA_HEIGHT-PADDING_TEXTS_OUTTER, TEXT_HALIGN_LEFT, TEXT_VALIGN_TOP);
     	}
     	if (isLimitedByGoals && mMatch.getGoalsHome() != mMatch.getGoalsGuest() && (mMatch.getGoalsHome() >= mGoalLimit || mMatch.getGoalsGuest() >= mGoalLimit)) {
     		setGameEnded();
@@ -767,8 +880,8 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	
 	private static class TouchEventData {
 
-		private static float mCamera_x;
-		private static float mTouch_x;
+		private static volatile float mCamera_x;
+		private static volatile float mTouch_x;
 
 	}
 	
@@ -789,7 +902,75 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-		if (mState != STATE_ENDED) {
+		if (mState == STATE_WAITING) {
+			mState = STATE_RUNNING;
+			closeTutorial();
+			mStartTime = System.currentTimeMillis();
+
+			createHUD();
+			createPhysics();
+			createWorldBoundaries();
+			createSprites();
+			
+			registerUpdateHandler(new IUpdateHandler() {
+				@Override
+				public void onUpdate(float pSecondsElapsed) {
+					if (isPendingKickoff()) {
+						initKickoff();
+						setPendingKickoff(false);
+					}
+					else if (getPendingGoalkick() != GOALKICK_NONE) {
+						initGoalkick(getPendingGoalkick());
+						setPendingGoalkick(GOALKICK_NONE);
+					}
+					else {
+						synchronized (BallData.mMovement) {
+							if (BallData.mMovement.y != 0.0f) {
+								mBall_Body.applyForce(BallData.mMovement, mBall_Body.getWorldCenter());
+								BallData.mMovement.set(0.0f, 0.0f);
+								synchronized (BallData.mSpeed) {
+									BallData.mSpeed = mBall_Body.getLinearVelocity();
+									if (BallData.mSpeed.y > BALL_MAX_SPEED_Y) {
+										BallData.mSpeed.set(BallData.mSpeed.x, BALL_MAX_SPEED_Y);
+										mBall_Body.setLinearVelocity(BallData.mSpeed);
+									}
+								}
+							}
+							else {
+								makeHumanMoves();
+								makeAIMoves();
+							}
+						}
+					}
+					if (mTimestepCounter == 0) {
+						updateScore();
+					}
+					mTimestepCounter = (mTimestepCounter+1) % TIME_STEP_INTERVAL;
+					if (mExclamationExpires == Long.MAX_VALUE) {
+						mExclamationExpires = System.currentTimeMillis()+EXCLAMATION_DISPLAY_DURATION;
+						updateExclamation();
+					}
+					else if (mExclamationExpires > 0 && mExclamationExpires < System.currentTimeMillis()) {
+						mExclamationText = EXCLAMATION_NONE;
+						updateExclamation();
+					}
+				}
+				@Override
+				public void reset() { }
+			});
+
+			mCamera.setBounds(0, 0, GameScreen.FIELD_WIDTH, GameScreen.FIELD_HEIGHT);
+			mCamera.setBoundsEnabled(true);
+			mCamera.setChaseEntity(mBall_Sprite);
+			
+			playSound(mResourcesManager.mAudio_Whistle); // referee announces kick-off
+		}
+		else if (mState == STATE_ENDED) {
+			if (mActivity != null && pSceneTouchEvent.isActionDown()) {
+				mActivity.finish();
+			}
+		}
+		else {
 			TouchEventData.mCamera_x = mCamera.getCenterX();
 			TouchEventData.mTouch_x = pSceneTouchEvent.getX();
 			if (pSceneTouchEvent.isActionDown() || pSceneTouchEvent.isActionMove()) {
@@ -815,11 +996,6 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			}
 			else {
 				HumanMoves.mTouchDirection = DIRECTION_NONE;
-			}
-		}
-		else {
-			if (mActivity != null && pSceneTouchEvent.isActionDown()) {
-				mActivity.finish();
 			}
 		}
 		return true; // event has been consumed
@@ -911,13 +1087,13 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		else {
 			if (isCollision(mCollisionFixture1, mCollisionFixture2, BODY_TYPE_BALL, BODY_TYPE_PLAYER_1)) { // player 1 kicked the ball
 				if (!PlayerData.mPlayer1_isJumping) {
-					mBall_Movement.set(0.0f, mBall_Body.getWorldCenter().y < 6.65f ? BALL_KICK_ACCELERATION_Y : BALL_KICK_ACCELERATION_Y*0.35f); // only accelerate normal kicks that much and if the ball is higher (head kick) just a little bit (y-value by experience)
+					BallData.mMovement.set(0.0f, mBall_Body.getWorldCenter().y < 6.65f ? BALL_KICK_ACCELERATION_Y : BALL_KICK_ACCELERATION_Y*0.35f); // only accelerate normal kicks that much and if the ball is higher (head kick) just a little bit (y-value by experience)
 				}
 				playSound(mResourcesManager.mAudio_Kick);
 			}
 			else if (isCollision(mCollisionFixture1, mCollisionFixture2, BODY_TYPE_BALL, BODY_TYPE_PLAYER_2)) { // player 2 kicked the ball
 				if (!PlayerData.mPlayer2_isJumping) {
-					mBall_Movement.set(0.0f, mBall_Body.getWorldCenter().y < 6.65f ? BALL_KICK_ACCELERATION_Y : BALL_KICK_ACCELERATION_Y*0.35f); // only accelerate normal kicks that much and if the ball is higher (head kick) just a little bit (y-value by experience)
+					BallData.mMovement.set(0.0f, mBall_Body.getWorldCenter().y < 6.65f ? BALL_KICK_ACCELERATION_Y : BALL_KICK_ACCELERATION_Y*0.35f); // only accelerate normal kicks that much and if the ball is higher (head kick) just a little bit (y-value by experience)
 				}
 				playSound(mResourcesManager.mAudio_Kick);
 			}

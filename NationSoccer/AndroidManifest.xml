@@ -2,8 +2,8 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="im.delight.soccer"
-    android:versionCode="38"
-    android:versionName="0.8.6"
+    android:versionCode="1"
+    android:versionName="0.1.0"
     android:installLocation="preferExternal"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-sdk
@@ -75,12 +75,6 @@
             android:theme="@style/MyTheme.MyBackground" />
         <activity
             android:name=".CareerScreen"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
-            android:screenOrientation="landscape"
-            android:label="@string/career"
-            android:theme="@style/MyTheme.MyBackground" />
-        <activity
-            android:name=".TutorialScreen"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
             android:screenOrientation="landscape"
             android:label="@string/career"

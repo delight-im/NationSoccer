@@ -1,7 +1,7 @@
 package im.delight.soccer.settings;
 
-import im.delight.soccer.PreferencesActivity;
 import im.delight.soccer.R;
+import im.delight.soccer.util.PreferencesActivity;
 
 public class Main extends PreferencesActivity {
 

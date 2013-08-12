@@ -1,4 +1,6 @@
-package im.delight.soccer;
+package im.delight.soccer.util;
+
+import im.delight.soccer.MyApp;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -50,7 +52,6 @@ public abstract class PreferencesActivity extends SherlockPreferenceActivity imp
 	    	updateSummary(mAutoSummaryFields[i]); // initialization
 	    }
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this); // register change listener
-        mApp.setMusicEnabled(mApp.getVolumeMode() == MyApp.VOLUME_ALL);
     }
 
     @SuppressWarnings("deprecation")
@@ -58,7 +59,6 @@ public abstract class PreferencesActivity extends SherlockPreferenceActivity imp
     protected void onPause() {
         super.onPause();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this); // unregister change listener
-        mApp.setMusicEnabled(false);
     }
     
     private void updateSummary(String key) {
@@ -81,15 +81,8 @@ public abstract class PreferencesActivity extends SherlockPreferenceActivity imp
     	updateSummary(key);
     }
     
-    @Override
-    public void onBackPressed() {
-    	mApp.setMusicIsContinuing(true);
-    	finish();
-    }
-    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-    	mApp.setMusicIsContinuing(true);
     	finish();
 		return true;
 	}
