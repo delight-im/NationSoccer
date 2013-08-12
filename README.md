@@ -28,7 +28,6 @@ Every contribution is warmly welcomed. Please fork this repository, apply your c
 + Tyler Finck (SIL Open Font License 1.1)
 + The Android Open Source Project
 + temawas (Creative Commons BY 3.0)
-+ soundmatch24
 + Joe DeShon (Creative Commons BY 3.0)
 + LloydEvans09 (Creative Commons BY 3.0)
 + davidou
