@@ -36,10 +36,10 @@ Every contribution is warmly welcomed. Please fork this repository, apply your c
 
 ## License
 
-The Java source code of this project (but not libraries and media files mentioned above) have been released under the following license:
+The Java source code of this project, located in folder "NationSoccer" of this repository, have been released under the following license. This does not apply to the libraries and media files mentioned above.
 
 ```
-    Nation Soccer for Android
+    Nation Soccer
     Copyright (C) 2013 delight.im
 
     This program is free software: you can redistribute it and/or modify
