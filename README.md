@@ -36,7 +36,7 @@ Every contribution is warmly welcomed. Please fork this repository, apply your c
 
 ## License
 
-The Java source code of this project, located in folder "NationSoccer" of this repository, have been released under the following license. This does not apply to the libraries and media files mentioned above, nor for any resources inside "NationSoccer" folder other than the Java source code files.
+The Java source code of this project, located in folder "NationSoccer" of this repository, has been released under the following license. This does not apply to the libraries and media files mentioned above, nor for any resources inside "NationSoccer" folder other than the Java source code files.
 
 ```
     Nation Soccer
