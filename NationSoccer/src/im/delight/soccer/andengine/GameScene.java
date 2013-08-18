@@ -97,7 +97,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private volatile static Match mMatch;
 	private volatile static Vector2[] mPlayerVertices;
 	private HUD mHUD;
-	private HUD mTutorial;
+	private HUD mIntro;
 	private Text mTimeText;
 	private Text mExclamation;
 	private Text mScoreText;
@@ -255,7 +255,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		createBackground();
 		createPlayerData();
 		createPhrases();
-		createTutorial();
+		createIntro();
 
 		playMusic(mResourcesManager.mAudio_Music);
 	}
@@ -536,11 +536,12 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
 					HumanMoves.unsetTouchDirection(DIRECTION_RIGHT);
 					HumanMoves.setTouchDirection(DIRECTION_LEFT);
-					this.setAlpha(CONTROL_ALPHA_PRESSED);
+					Controller.left.setAlpha(CONTROL_ALPHA_PRESSED);
+					Controller.right.setAlpha(CONTROL_ALPHA_NORMAL);
 				}
 				else {
 					HumanMoves.unsetTouchDirection(DIRECTION_LEFT);
-					this.setAlpha(CONTROL_ALPHA_NORMAL);
+					Controller.left.setAlpha(CONTROL_ALPHA_NORMAL);
 				}
 				return true;
 			};
@@ -553,11 +554,12 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
 					HumanMoves.unsetTouchDirection(DIRECTION_LEFT);
 					HumanMoves.setTouchDirection(DIRECTION_RIGHT);
-					this.setAlpha(CONTROL_ALPHA_PRESSED);
+					Controller.right.setAlpha(CONTROL_ALPHA_PRESSED);
+					Controller.left.setAlpha(CONTROL_ALPHA_NORMAL);
 				}
 				else {
 					HumanMoves.unsetTouchDirection(DIRECTION_RIGHT);
-					this.setAlpha(CONTROL_ALPHA_NORMAL);
+					Controller.right.setAlpha(CONTROL_ALPHA_NORMAL);
 				}
 				return true;
 			};
@@ -569,20 +571,35 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
 				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
 					HumanMoves.setTouchDirection(DIRECTION_UP);
-					this.setAlpha(CONTROL_ALPHA_PRESSED);
+					Controller.up.setAlpha(CONTROL_ALPHA_PRESSED);
 				}
 				else {
 					HumanMoves.unsetTouchDirection(DIRECTION_UP);
-					this.setAlpha(CONTROL_ALPHA_NORMAL);
+					Controller.up.setAlpha(CONTROL_ALPHA_NORMAL);
 				}
 				return true;
 			};
 		};
 		mHUD.registerTouchArea(Controller.up);
 		mHUD.attachChild(Controller.up);
+		
+		mHUD.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
-		mHUD.setTouchAreaBindingOnActionDownEnabled(true);
-		mHUD.setTouchAreaBindingOnActionMoveEnabled(true);
+			@Override
+			public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+				HumanMoves.unsetTouchDirection(DIRECTION_LEFT);
+				Controller.left.setAlpha(CONTROL_ALPHA_NORMAL);
+
+				HumanMoves.unsetTouchDirection(DIRECTION_RIGHT);
+				Controller.right.setAlpha(CONTROL_ALPHA_NORMAL);
+
+				HumanMoves.unsetTouchDirection(DIRECTION_UP);
+				Controller.up.setAlpha(CONTROL_ALPHA_NORMAL);
+
+				return false;
+			}
+			
+		});
 	}
 	
 	private float[] getKickoffPosition(int spriteID) {
@@ -682,28 +699,28 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mPhysicsWorld.setContactListener(this);
 	}
 	
-	private void closeTutorial() {
+	private void closeIntro() {
 		setOnSceneTouchListener(null);
 		mCamera.setHUD(null);
-		mTutorial.setVisible(false);
+		mIntro.setVisible(false);
 		if (mIntro_Text != null) {
 			mIntro_Text.detachSelf();
 			mIntro_Text.dispose();
 		}
-		mTutorial.detachSelf();
-		mTutorial.dispose();
-		mTutorial = null;
+		mIntro.detachSelf();
+		mIntro.dispose();
+		mIntro = null;
 	}
 	
-	private void createTutorial() {
-		mTutorial = new HUD(); // create fixed HUD for tutorial display
+	private void createIntro() {
+		mIntro = new HUD(); // create fixed HUD for tutorial display
 		
 		mIntro_Text = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TAP_TO_START), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
 		mIntro_Text.setColor(1.0f, 1.0f, 1.0f);
 		updateText(mIntro_Text, Phrases.mTapToStart, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/3, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
-		mTutorial.attachChild(mIntro_Text);
+		mIntro.attachChild(mIntro_Text);
 		
-		mCamera.setHUD(mTutorial);
+		mCamera.setHUD(mIntro);
 		setOnSceneTouchListener(this);
 	}
 	
@@ -722,6 +739,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mHUD.attachChild(mExclamation);
 		mHUD.attachChild(mScoreText);
 		mHUD.attachChild(mBottomText);
+
 		mCamera.setHUD(mHUD);
 	}
 	
@@ -793,6 +811,10 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mFieldLeft_Sprite.setVisible(false);
 		mFieldCenter_Sprite.setVisible(false);
 		mFieldRight_Sprite.setVisible(false);
+		
+		Controller.left.setVisible(false);
+		Controller.right.setVisible(false);
+		Controller.up.setVisible(false);
 
 		mTimeText.setVisible(false);
 		mScoreText.setVisible(false);
@@ -862,7 +884,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		if (mState == STATE_WAITING) {
 			mState = STATE_RUNNING;
-			closeTutorial();
+			closeIntro();
 			mStartTime = System.currentTimeMillis();
 
 			createHUD();
