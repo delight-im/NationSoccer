@@ -2,13 +2,11 @@ package im.delight.soccer.andengine;
 
 import im.delight.soccer.util.GameScreen;
 import im.delight.soccer.util.Match;
-
 import org.andengine.audio.music.Music;
 import org.andengine.audio.sound.Sound;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -79,7 +77,6 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private static final int STATE_ENDED = 2;
 	private static final int STATE_EXTRA_TIME = 3;
 	private static final int STATE_WAITING = 4;
-	private static final int DIRECTION_NONE = 0; // used for bitmask
 	private static final int DIRECTION_LEFT = 1; // used for bitmask
 	private static final int DIRECTION_RIGHT = 2; // used for bitmask
 	private static final int DIRECTION_UP = 4; // used for bitmask
@@ -87,26 +84,25 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private static final int EXCLAMATION_NONE = 0;
 	private static final int EXCLAMATION_GOAL = 1;
 	private static final int EXCLAMATION_OUT = 2;
-	private static final float TUTORIAL_LINE_WIDTH = 12.0f;
-	private static final float TUTORIAL_TEXT_BOX_WIDTH = 396.0f;
-	private static final float TUTORIAL_TEXT_BOX_HEIGHT = 64.0f;
-	private static final float TUTORIAL_TEXT_MARGIN_BOTTOM = 8.0f;
-	private static final float TUTORIAL_TEXT_BOX_ALPHA = 0.5f;
 	/** The gravity for this scene */
 	private static final float GRAVITY = -28.0f;
 	/** When debug is enabled, sprite borders will be drawn to the screen and players will stop moving after first goal */
 	private static final int DEBUG = DEBUG_NONE;
 	/** Number of time steps that an update of scores and time occurs after */
 	private static final int TIME_STEP_INTERVAL = 30;
+	private static final int CONTROL_SPACING = 12;
+	private static final float CONTROL_ALPHA_NORMAL = 1.0f;
+	private static final float CONTROL_ALPHA_PRESSED = 0.6f;
 	/** Singleton holder for the match to simulate */
-	private static Match mMatch;
-	private static Vector2[] mPlayerVertices;
+	private volatile static Match mMatch;
+	private volatile static Vector2[] mPlayerVertices;
 	private HUD mHUD;
 	private HUD mTutorial;
 	private Text mTimeText;
 	private Text mExclamation;
 	private Text mScoreText;
 	private Text mBottomText;
+	private Text mIntro_Text;
 	private String mTimeText_Text;
 	private PhysicsWorld mPhysicsWorld;
 	private RepeatingSpriteBackground mBackground_Sprite;
@@ -131,9 +127,9 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private volatile int mTimestepCounter;
 	private volatile Fixture mCollisionFixture1;
 	private volatile Fixture mCollisionFixture2;
-	private int mExclamationText;
-	private long mExclamationExpires;
-	//private boolean mPlayersMayMove = true; // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
+	private volatile int mExclamationText;
+	private volatile long mExclamationExpires;
+	//private volatile boolean mPlayersMayMove = true; // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
 	
 	private static class AIMoves {
 		
@@ -261,11 +257,10 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		createPhrases();
 		createTutorial();
 
-		setOnSceneTouchListener(this);
 		playMusic(mResourcesManager.mAudio_Music);
 	}
 	
-	private void makeHumanMoves() {
+	private synchronized void makeHumanMoves() {
 		if (HumanMoves.isTouchDirection(DIRECTION_LEFT)) { // horizontal == left
 			if (HumanMoves.isTouchDirection(DIRECTION_UP)) { // vertical == up
 				applyAcceleration(SPRITE_PLAYER_1, -PLAYER_ACCELERATION_X, PLAYER_ACCELERATION_Y);
@@ -289,7 +284,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		}
 	}
 	
-	private void makeAIMoves() {
+	private synchronized void makeAIMoves() {
 		//if (getDebug() == DEBUG_SCREENSHOT && !mPlayersMayMove) { return; } // DEBUG_SCREENSHOT_MODE (enable all lines with this comment)
     	if (PlayerData.mPlayer2_isJumping) { // when in the air (jumping)
     		applyAcceleration(SPRITE_PLAYER_2, PlayerData.mPlayer2_isLookingLeft ? -PLAYER_ACCELERATION_X : PLAYER_ACCELERATION_X, 0.0f); // continue to accelerate in same direction
@@ -327,7 +322,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
     	}
     }
 	
-	private void applyAcceleration(int spriteID, float accX, float accY) {
+	private synchronized void applyAcceleration(int spriteID, float accX, float accY) {
 		if (spriteID == SPRITE_PLAYER_1) {
 			if (PlayerData.mPlayer1_isJumping) {
 				accY = 0.0f;
@@ -407,23 +402,14 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			mPhysicsWorld.dispose();
 			mPhysicsWorld = null;
 		}
+		
+		Sprite[] allSprites = new Sprite[] { mPlayer1_Sprite, mPlayer2_Sprite, mBall_Sprite, mFieldLeft_Sprite, mFieldCenter_Sprite, mFieldRight_Sprite, Controller.left, Controller.right, Controller.up };
 
-		if (mPlayer1_Sprite != null) {
-			mPlayer1_Sprite.detachSelf();
-			mPlayer1_Sprite.dispose();
-			mPlayer1_Sprite = null;
-		}
-
-		if (mPlayer2_Sprite != null) {
-			mPlayer2_Sprite.detachSelf();
-			mPlayer2_Sprite.dispose();
-			mPlayer2_Sprite = null;
-		}
-
-		if (mBall_Sprite != null) {
-			mBall_Sprite.detachSelf();
-			mBall_Sprite.dispose();
-			mBall_Sprite = null;
+		for (Sprite sprite : allSprites) {
+			if (sprite != null) {
+				sprite.detachSelf();
+				sprite.dispose();
+			}
 		}
 		
 		try {
@@ -532,6 +518,73 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		}
 	}
 	
+	private static class Controller {
+
+		private static Sprite left;
+		private static Sprite right;
+		private static Sprite up;
+
+	}
+	
+	private void createController() {
+		final float controllerWidthHor = mResourcesManager.mControlLeft_TextureRegion.getWidth();
+		final float controllerWidthVer = mResourcesManager.mControlUp_TextureRegion.getWidth();
+		final float controllerHeight = mResourcesManager.mControlLeft_TextureRegion.getHeight();
+
+		Controller.left = new Sprite(controllerWidthHor*0.5f, controllerHeight*0.5f, mResourcesManager.mControlLeft_TextureRegion, mVertexManager) {
+			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
+				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
+					HumanMoves.unsetTouchDirection(DIRECTION_RIGHT);
+					HumanMoves.setTouchDirection(DIRECTION_LEFT);
+					this.setAlpha(CONTROL_ALPHA_PRESSED);
+				}
+				else {
+					HumanMoves.unsetTouchDirection(DIRECTION_LEFT);
+					this.setAlpha(CONTROL_ALPHA_NORMAL);
+				}
+				return true;
+			};
+		};
+		mHUD.registerTouchArea(Controller.left);
+		mHUD.attachChild(Controller.left);
+		
+		Controller.right = new Sprite(controllerWidthHor*1.5f+CONTROL_SPACING, controllerHeight*0.5f, mResourcesManager.mControlRight_TextureRegion, mVertexManager) {
+			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
+				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
+					HumanMoves.unsetTouchDirection(DIRECTION_LEFT);
+					HumanMoves.setTouchDirection(DIRECTION_RIGHT);
+					this.setAlpha(CONTROL_ALPHA_PRESSED);
+				}
+				else {
+					HumanMoves.unsetTouchDirection(DIRECTION_RIGHT);
+					this.setAlpha(CONTROL_ALPHA_NORMAL);
+				}
+				return true;
+			};
+		};
+		mHUD.registerTouchArea(Controller.right);
+		mHUD.attachChild(Controller.right);
+		
+		Controller.up = new Sprite(GameScreen.CAMERA_WIDTH-controllerWidthVer/2, controllerHeight/2, mResourcesManager.mControlUp_TextureRegion, mVertexManager) {
+			public boolean onAreaTouched(TouchEvent touchEvent, float X, float Y) {
+				if (touchEvent.isActionDown() || touchEvent.isActionMove()) {
+					HumanMoves.setTouchDirection(DIRECTION_UP);
+					this.setAlpha(CONTROL_ALPHA_PRESSED);
+				}
+				else {
+					HumanMoves.unsetTouchDirection(DIRECTION_UP);
+					this.setAlpha(CONTROL_ALPHA_NORMAL);
+				}
+				return true;
+			};
+		};
+		mHUD.registerTouchArea(Controller.up);
+		mHUD.attachChild(Controller.up);
+
+		mHUD.setTouchAreaBindingOnActionDownEnabled(true);
+		mHUD.setTouchAreaBindingOnActionMoveEnabled(true);
+	}
+	
 	private float[] getKickoffPosition(int spriteID) {
 		switch (spriteID) {
 			case SPRITE_PLAYER_1: return new float[] { GameScreen.FIELD_WIDTH/2-190, GameScreen.FIELD_HEIGHT*0.5f };
@@ -629,68 +682,13 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		mPhysicsWorld.setContactListener(this);
 	}
 	
-	private static class TutorialEntities {
-
-		private static Line mLine_Horizontal;
-		private static Line mLine_VerticalTop1;
-		private static Line mLine_VerticalTop2;
-		private static Line mLine_VerticalBottom;
-		private static Sprite mArrow_TopLeft;
-		private static Sprite mArrow_TopCenter;
-		private static Sprite mArrow_TopRight;
-		private static Sprite mArrow_BottomLeft;
-		private static Sprite mArrow_BottomRight;
-		private static Rectangle mText_Box;
-		private static Text mText_Text;
-
-	}
-	
 	private void closeTutorial() {
+		setOnSceneTouchListener(null);
 		mCamera.setHUD(null);
 		mTutorial.setVisible(false);
-		if (TutorialEntities.mLine_Horizontal != null) {
-			TutorialEntities.mLine_Horizontal.detachSelf();
-			TutorialEntities.mLine_Horizontal.dispose();
-		}
-		if (TutorialEntities.mLine_VerticalTop1 != null) {
-			TutorialEntities.mLine_VerticalTop1.detachSelf();
-			TutorialEntities.mLine_VerticalTop1.dispose();
-		}
-		if (TutorialEntities.mLine_VerticalTop2 != null) {
-			TutorialEntities.mLine_VerticalTop2.detachSelf();
-			TutorialEntities.mLine_VerticalTop2.dispose();
-		}
-		if (TutorialEntities.mLine_VerticalBottom != null) {
-			TutorialEntities.mLine_VerticalBottom.detachSelf();
-			TutorialEntities.mLine_VerticalBottom.dispose();
-		}
-		if (TutorialEntities.mArrow_TopLeft != null) {
-			TutorialEntities.mArrow_TopLeft.detachSelf();
-			TutorialEntities.mArrow_TopLeft.dispose();
-		}
-		if (TutorialEntities.mArrow_TopCenter != null) {
-			TutorialEntities.mArrow_TopCenter.detachSelf();
-			TutorialEntities.mArrow_TopCenter.dispose();
-		}
-		if (TutorialEntities.mArrow_TopRight != null) {
-			TutorialEntities.mArrow_TopRight.detachSelf();
-			TutorialEntities.mArrow_TopRight.dispose();
-		}
-		if (TutorialEntities.mArrow_BottomLeft != null) {
-			TutorialEntities.mArrow_BottomLeft.detachSelf();
-			TutorialEntities.mArrow_BottomLeft.dispose();
-		}
-		if (TutorialEntities.mArrow_BottomRight != null) {
-			TutorialEntities.mArrow_BottomRight.detachSelf();
-			TutorialEntities.mArrow_BottomRight.dispose();
-		}
-		if (TutorialEntities.mText_Box != null) {
-			TutorialEntities.mText_Box.detachSelf();
-			TutorialEntities.mText_Box.dispose();
-		}
-		if (TutorialEntities.mText_Text != null) {
-			TutorialEntities.mText_Text.detachSelf();
-			TutorialEntities.mText_Text.dispose();
+		if (mIntro_Text != null) {
+			mIntro_Text.detachSelf();
+			mIntro_Text.dispose();
 		}
 		mTutorial.detachSelf();
 		mTutorial.dispose();
@@ -700,51 +698,13 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 	private void createTutorial() {
 		mTutorial = new HUD(); // create fixed HUD for tutorial display
 		
-		TutorialEntities.mLine_Horizontal = new Line(0.0f, GameScreen.CAMERA_HEIGHT/2, GameScreen.CAMERA_WIDTH, GameScreen.CAMERA_HEIGHT/2, TUTORIAL_LINE_WIDTH, mVertexManager);
-		TutorialEntities.mLine_Horizontal.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
-		mTutorial.attachChild(TutorialEntities.mLine_Horizontal);
-		
-		TutorialEntities.mLine_VerticalTop1 = new Line(GameScreen.CAMERA_WIDTH*1/3, GameScreen.CAMERA_HEIGHT/2+TUTORIAL_LINE_WIDTH/4+1, GameScreen.CAMERA_WIDTH*1/3, GameScreen.CAMERA_HEIGHT, TUTORIAL_LINE_WIDTH, mVertexManager);
-		TutorialEntities.mLine_VerticalTop1.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
-		mTutorial.attachChild(TutorialEntities.mLine_VerticalTop1);
-		
-		TutorialEntities.mLine_VerticalTop2 = new Line(GameScreen.CAMERA_WIDTH*2/3, GameScreen.CAMERA_HEIGHT/2+TUTORIAL_LINE_WIDTH/4+1, GameScreen.CAMERA_WIDTH*2/3, GameScreen.CAMERA_HEIGHT, TUTORIAL_LINE_WIDTH, mVertexManager);
-		TutorialEntities.mLine_VerticalTop2.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
-		mTutorial.attachChild(TutorialEntities.mLine_VerticalTop2);
-		
-		TutorialEntities.mLine_VerticalBottom = new Line(GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_BOX_HEIGHT, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/2-TUTORIAL_LINE_WIDTH/4-1, TUTORIAL_LINE_WIDTH, mVertexManager);
-		TutorialEntities.mLine_VerticalBottom.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
-		mTutorial.attachChild(TutorialEntities.mLine_VerticalBottom);
-		
-		TutorialEntities.mArrow_TopLeft = new Sprite(GameScreen.CAMERA_WIDTH*1/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
-		TutorialEntities.mArrow_TopLeft.setRotation(-45.0f);
-		mTutorial.attachChild(TutorialEntities.mArrow_TopLeft);
-		
-		TutorialEntities.mArrow_TopCenter = new Sprite(GameScreen.CAMERA_WIDTH*3/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
-		mTutorial.attachChild(TutorialEntities.mArrow_TopCenter);
-
-		TutorialEntities.mArrow_TopRight = new Sprite(GameScreen.CAMERA_WIDTH*5/6, GameScreen.CAMERA_HEIGHT*3/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
-		TutorialEntities.mArrow_TopRight.setRotation(45.0f);
-		mTutorial.attachChild(TutorialEntities.mArrow_TopRight);
-		
-		TutorialEntities.mArrow_BottomLeft = new Sprite(GameScreen.CAMERA_WIDTH*1/4, GameScreen.CAMERA_HEIGHT*1/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
-		TutorialEntities.mArrow_BottomLeft.setRotation(-90.0f);
-		mTutorial.attachChild(TutorialEntities.mArrow_BottomLeft);
-		
-		TutorialEntities.mArrow_BottomRight = new Sprite(GameScreen.CAMERA_WIDTH*3/4, GameScreen.CAMERA_HEIGHT*1/4, mResourcesManager.mArrow_TextureRegion, mVertexManager);
-		TutorialEntities.mArrow_BottomRight.setRotation(90.0f);
-		mTutorial.attachChild(TutorialEntities.mArrow_BottomRight);
-		
-		TutorialEntities.mText_Box = new Rectangle(GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_BOX_HEIGHT/2, TUTORIAL_TEXT_BOX_WIDTH, TUTORIAL_TEXT_BOX_HEIGHT, mVertexManager);
-		TutorialEntities.mText_Box.setColor(0.0f, 0.0f, 0.0f, TUTORIAL_TEXT_BOX_ALPHA);
-		mTutorial.attachChild(TutorialEntities.mText_Box);
-		
-		TutorialEntities.mText_Text = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TAP_TO_START), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
-		TutorialEntities.mText_Text.setColor(1.0f, 1.0f, 1.0f);
-		updateText(TutorialEntities.mText_Text, Phrases.mTapToStart, GameScreen.CAMERA_WIDTH/2, TUTORIAL_TEXT_MARGIN_BOTTOM, TEXT_HALIGN_CENTER, TEXT_VALIGN_BOTTOM);
-		mTutorial.attachChild(TutorialEntities.mText_Text);
+		mIntro_Text = new Text(0, 0, mResourcesManager.mFontSmall, Phrases.getPossibleCharacters(Phrases.FIELD_TAP_TO_START), new TextOptions(HorizontalAlign.CENTER), mVertexManager); // prepare memory with all possible chars
+		mIntro_Text.setColor(1.0f, 1.0f, 1.0f);
+		updateText(mIntro_Text, Phrases.mTapToStart, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/3, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
+		mTutorial.attachChild(mIntro_Text);
 		
 		mCamera.setHUD(mTutorial);
+		setOnSceneTouchListener(this);
 	}
 	
 	private void createHUD() {
@@ -848,6 +808,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		}
 		updateText(mBottomText, Phrases.mTapToLeave, GameScreen.CAMERA_WIDTH/2, GameScreen.CAMERA_HEIGHT/3, TEXT_HALIGN_CENTER, TEXT_VALIGN_TOP);
 		
+		setOnSceneTouchListener(this);
 		setIgnoreUpdate(true);
 	}
 	
@@ -878,23 +839,20 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		}
 	}
 	
-	private static class TouchEventData {
-
-		private static volatile float mCamera_x;
-		private static volatile float mTouch_x;
-
-	}
-	
 	private static class HumanMoves {
 
 		/** Bitmask indicating which directions the touch control was used for (may be a combination of left/right and top/bottom) */
-		private static int mTouchDirection;
+		private volatile static int mTouchDirection;
 		
-		private static void setTouchDirection(final int direction) {
-			mTouchDirection = direction;
+		private synchronized static void setTouchDirection(final int direction) {
+			mTouchDirection |= direction;
 		}
 		
-		private static boolean isTouchDirection(final int direction) {
+		private synchronized static void unsetTouchDirection(final int direction) {
+			mTouchDirection &= ~direction;
+		}
+		
+		private synchronized static boolean isTouchDirection(final int direction) {
 			return (HumanMoves.mTouchDirection & direction) == direction;
 		}
 
@@ -911,6 +869,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 			createPhysics();
 			createWorldBoundaries();
 			createSprites();
+			createController();
 			
 			registerUpdateHandler(new IUpdateHandler() {
 				@Override
@@ -970,34 +929,6 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 				mActivity.finish();
 			}
 		}
-		else {
-			TouchEventData.mCamera_x = mCamera.getCenterX();
-			TouchEventData.mTouch_x = pSceneTouchEvent.getX();
-			if (pSceneTouchEvent.isActionDown() || pSceneTouchEvent.isActionMove()) {
-	    		if (pSceneTouchEvent.getY() > (GameScreen.CAMERA_HEIGHT/2)) { // touch on upper half
-	        		if (Math.abs(TouchEventData.mTouch_x-TouchEventData.mCamera_x) < (GameScreen.CAMERA_WIDTH/3)) { // touch on center screen third
-	        			HumanMoves.setTouchDirection(DIRECTION_UP);
-	        		}
-	        		else if (TouchEventData.mTouch_x < TouchEventData.mCamera_x) { // touch on left screen third
-	        			HumanMoves.setTouchDirection(DIRECTION_LEFT | DIRECTION_UP);
-	        		}
-	        		else if (TouchEventData.mTouch_x > TouchEventData.mCamera_x) { // touch on right screen third
-	        			HumanMoves.setTouchDirection(DIRECTION_RIGHT | DIRECTION_UP);
-	        		}
-	    		}
-	    		else { // touch on bottom half
-	        		if (TouchEventData.mTouch_x < TouchEventData.mCamera_x) { // touch on left screen half
-	        			HumanMoves.setTouchDirection(DIRECTION_LEFT);
-	        		}
-	        		else { // touch on right screen half
-	        			HumanMoves.setTouchDirection(DIRECTION_RIGHT);
-	        		}
-	    		}
-			}
-			else {
-				HumanMoves.mTouchDirection = DIRECTION_NONE;
-			}
-		}
 		return true; // event has been consumed
 	}
 	
@@ -1017,7 +948,7 @@ public class GameScene extends BaseScene implements ContactListener, IOnSceneTou
 		return mPendingGoalkick;
 	}
 
-	private boolean isCollision(final Fixture x1, final Fixture x2, final String type1, final String type2) {
+	private synchronized boolean isCollision(final Fixture x1, final Fixture x2, final String type1, final String type2) {
 		return (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null) && ((x1.getBody().getUserData().equals(type1) && x2.getBody().getUserData().equals(type2)) || (x1.getBody().getUserData().equals(type2) && x2.getBody().getUserData().equals(type1)));
 	}
 

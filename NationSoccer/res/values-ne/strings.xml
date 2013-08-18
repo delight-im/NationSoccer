@@ -41,7 +41,6 @@
 	<string name="choose_opponent_player">Choose opponent</string>
 	<string name="choose_skill_to_improve">You have improved! Which skill do you want to strengthen?</string>
 	<string name="choose_your_player">Choose your player</string>
-	<string name="choosing_player">Choosing players</string>
 	<string name="coming_soon">Coming soon!</string>
 	<string name="congratulations">Congratulations</string>
 	<string name="credits">Credits</string>
@@ -101,6 +100,7 @@
 	<string name="round_of_2">Final</string>
 	<string name="round_of_4">Semifinal</string>
 	<string name="round_of_8">Quarterfinal</string>
+	<string name="select_player">Select player</string>
 	<string name="settings">Settings</string>
 	<string name="settings_general">General settings</string>
 	<string name="setting_game_end">End of game</string>

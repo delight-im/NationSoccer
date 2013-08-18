@@ -1,85 +1,97 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/selection_screen"
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
 	android:weightSum="1">
-	<ImageView
-		android:id="@+id/flag"
-		android:contentDescription="@string/player_flag"
-		android:scaleType="centerInside"
-		android:layout_gravity="center_horizontal"
-		android:layout_marginTop="16dp"
-		android:layout_marginBottom="8dp"
-		android:layout_width="96dp"
-		android:layout_height="72dp" />
-	<ScrollView
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp">
+		<ImageView
+			android:id="@+id/flag"
+			android:contentDescription="@string/player_flag"
+			android:scaleType="centerInside"
+			android:layout_gravity="center_vertical"
+			android:layout_marginTop="16dp"
+			android:layout_marginBottom="8dp"
+			android:layout_width="96dp"
+			android:layout_height="72dp" />
+	    <Button
+	        android:id="@+id/submit_selection"
+	        android:text="@string/select_player"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:textSize="@dimen/mainscreen_font_size"
+		    android:layout_marginLeft="8dp"
+		    android:layout_marginRight="16dp"
+	        style="@style/ModeButton.Action" />
+	</LinearLayout>
+	<LinearLayout
+	    android:orientation="horizontal"
 	    android:layout_width="fill_parent"
 	    android:layout_height="0dp"
-	    android:layout_weight="1">
+	    android:layout_weight="1"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp">
+		<ImageView
+		    android:id="@+id/picture"
+		    android:contentDescription="@string/player_picture"
+		    android:scaleType="centerInside"
+		    android:layout_gravity="center_vertical"
+		    android:layout_width="96dp"
+		    android:layout_height="96dp" />
 		<LinearLayout
-		    android:orientation="horizontal"
+		    android:orientation="vertical"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
-		    android:paddingLeft="8dp"
-		    android:paddingRight="8dp">
-			<ImageView
-			    android:id="@+id/picture"
-			    android:contentDescription="@string/player_picture"
-			    android:scaleType="centerInside"
-			    android:layout_gravity="center_vertical"
-			    android:layout_width="96dp"
-			    android:layout_height="96dp" />
-			<LinearLayout
-			    android:orientation="vertical"
+		    android:layout_gravity="center_vertical"
+		    android:layout_marginLeft="8dp"
+		    android:layout_marginRight="16dp">
+		    <TextView
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@color/grey_dark_50"
+		        android:text="@string/skill_speed"
+		        android:textColor="@color/white_dark"
+		        style="@style/TextCaption.ProgressBar" />
+			<ProgressBar
+			    android:id="@+id/skill_speed"
 			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:layout_gravity="center_vertical"
-			    android:layout_marginLeft="8dp"
-			    android:layout_marginRight="16dp">
-			    <TextView
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:background="@color/grey_dark_50"
-			        android:text="@string/skill_speed"
-			        android:textColor="@color/white_dark"
-			        style="@style/TextCaption.ProgressBar" />
-				<ProgressBar
-				    android:id="@+id/skill_speed"
-				    android:layout_width="fill_parent"
-				    android:layout_height="18dp"
-				    android:layout_marginBottom="4dp"
-				    style="@style/ProgressBar_Horizontal" />
-			    <TextView
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:background="@color/grey_dark_50"
-			        android:text="@string/skill_jump"
-			        android:textColor="@color/white_dark"
-			        style="@style/TextCaption.ProgressBar" />
-				<ProgressBar
-				    android:id="@+id/skill_jump"
-				    android:layout_width="fill_parent"
-				    android:layout_height="18dp"
-				    android:layout_marginBottom="4dp"
-				    style="@style/ProgressBar_Horizontal" />
-			    <TextView
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:background="@color/grey_dark_50"
-			        android:text="@string/skill_power"
-			        android:textColor="@color/white_dark"
-			        style="@style/TextCaption.ProgressBar" />
-				<ProgressBar
-				    android:id="@+id/skill_power"
-				    android:layout_width="fill_parent"
-				    android:layout_height="18dp"
-				    android:layout_marginBottom="4dp"
-				    style="@style/ProgressBar_Horizontal" />
-			</LinearLayout>
+			    android:layout_height="18dp"
+			    android:layout_marginBottom="4dp"
+			    style="@style/ProgressBar_Horizontal" />
+		    <TextView
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@color/grey_dark_50"
+		        android:text="@string/skill_jump"
+		        android:textColor="@color/white_dark"
+		        style="@style/TextCaption.ProgressBar" />
+			<ProgressBar
+			    android:id="@+id/skill_jump"
+			    android:layout_width="fill_parent"
+			    android:layout_height="18dp"
+			    android:layout_marginBottom="4dp"
+			    style="@style/ProgressBar_Horizontal" />
+		    <TextView
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@color/grey_dark_50"
+		        android:text="@string/skill_power"
+		        android:textColor="@color/white_dark"
+		        style="@style/TextCaption.ProgressBar" />
+			<ProgressBar
+			    android:id="@+id/skill_power"
+			    android:layout_width="fill_parent"
+			    android:layout_height="18dp"
+			    android:layout_marginBottom="4dp"
+			    style="@style/ProgressBar_Horizontal" />
 		</LinearLayout>
-	</ScrollView>
+	</LinearLayout>
 	<FrameLayout
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"

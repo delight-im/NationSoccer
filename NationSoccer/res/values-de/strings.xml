@@ -41,7 +41,6 @@
 	<string name="choose_opponent_player">Gegner wählen</string>
 	<string name="choose_skill_to_improve">Du hast Dich verbessert! Welches Attribut möchtest Du erhöhen?</string>
 	<string name="choose_your_player">Deinen Spieler wählen</string>
-	<string name="choosing_player">Wähle die Spieler</string>
 	<string name="coming_soon">Bald verfügbar!</string>
 	<string name="congratulations">Glückwunsch</string>
 	<string name="credits">Credits</string>
@@ -101,6 +100,7 @@
 	<string name="round_of_2">Finale</string>
 	<string name="round_of_4">Halbfinale</string>
 	<string name="round_of_8">Viertelfinale</string>
+	<string name="select_player">Spieler auswählen</string>
 	<string name="settings">Einstellungen</string>
 	<string name="settings_general">Allgemeine Einstellungen</string>
 	<string name="setting_game_end">Ende des Spiels</string>

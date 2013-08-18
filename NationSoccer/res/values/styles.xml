@@ -46,7 +46,7 @@
     </style>
     <style name="ModeButton.Action">
         <item name="android:background">@drawable/button_action</item>
-        <item name="android:textColor">@color/white_dark</item>
+        <item name="android:textColor">@color/black</item>
 	</style>
     <dimen name="mainscreen_font_size">18sp</dimen>
     <dimen name="mainscreen_padding">16dp</dimen>

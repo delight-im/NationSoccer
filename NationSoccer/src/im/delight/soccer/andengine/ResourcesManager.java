@@ -34,6 +34,9 @@ public class ResourcesManager {
 	private static final String GRAPHIC_FIELD_LEFT = "field_left.png";
 	private static final String GRAPHIC_FIELD_RIGHT = "field_right.png";
 	private static final String GRAPHIC_FIELD_CENTER = "field_center.png";
+	private static final String GRAPHIC_CONTROL_LEFT = "control_left.png";
+	private static final String GRAPHIC_CONTROL_RIGHT = "control_right.png";
+	private static final String GRAPHIC_CONTROL_UP = "control_up.png";
 	private static ResourcesManager mInstance;
 	public Engine mEngine;
 	public GameScreen mActivity;
@@ -66,8 +69,12 @@ public class ResourcesManager {
 	public TextureRegion mFieldRight_TextureRegion;
 	public ITexture mFieldCenter_Texture;
 	public TextureRegion mFieldCenter_TextureRegion;
-	public ITexture mArrow_Texture;
-	public TextureRegion mArrow_TextureRegion;
+	public ITexture mControlLeft_Texture;
+	public TextureRegion mControlLeft_TextureRegion;
+	public ITexture mControlRight_Texture;
+	public TextureRegion mControlRight_TextureRegion;
+	public ITexture mControlUp_Texture;
+	public TextureRegion mControlUp_TextureRegion;
 	// GAME SCREEN END
 	
 	private void loadSounds(int volumeMode) {
@@ -122,13 +129,9 @@ public class ResourcesManager {
 		}
 	}
 	
-	public void GameScene_load(String player1Drawable, String player2Drawable, int volumeMode) {
-		// GRAPHICS BEGIN
+	
+	private void loadGraphics(final String player1Drawable, final String player2Drawable) {
 		try {
-			mArrow_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+"arrow.png", TextureOptions.BILINEAR);
-			mArrow_Texture.load();
-			mArrow_TextureRegion = TextureRegionFactory.extractFromTexture(mArrow_Texture);
-
 			mPlayer1_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+player1Drawable, TextureOptions.BILINEAR);
 			mPlayer1_Texture.load();
 			mPlayer1_TextureRegion = TextureRegionFactory.extractTiledFromTexture(mPlayer1_Texture, 2, 2);
@@ -156,57 +159,46 @@ public class ResourcesManager {
 			mFieldCenter_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+GRAPHIC_FIELD_CENTER, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			mFieldCenter_Texture.load();
 			mFieldCenter_TextureRegion = TextureRegionFactory.extractFromTexture(mFieldCenter_Texture);
+			
+			mControlLeft_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+GRAPHIC_CONTROL_LEFT, TextureOptions.BILINEAR);
+			mControlLeft_Texture.load();
+			mControlLeft_TextureRegion = TextureRegionFactory.extractFromTexture(mControlLeft_Texture);
+			
+			mControlRight_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+GRAPHIC_CONTROL_RIGHT, TextureOptions.BILINEAR);
+			mControlRight_Texture.load();
+			mControlRight_TextureRegion = TextureRegionFactory.extractFromTexture(mControlRight_Texture);
+			
+			mControlUp_Texture = new AssetBitmapTexture(mActivity.getTextureManager(), mActivity.getAssets(), GRAPHICS_DIR+GRAPHIC_CONTROL_UP, TextureOptions.BILINEAR);
+			mControlUp_Texture.load();
+			mControlUp_TextureRegion = TextureRegionFactory.extractFromTexture(mControlUp_Texture);
 		}
-		catch (IOException e) { }
-		// GRAPHICS END
-		// OTHER BEGIN
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private void unloadGraphics() {
+		ITexture[] allTextures = new ITexture[] { mPlayer1_Texture, mPlayer2_Texture, mBall_Texture, mBackground_Texture, mFieldLeft_Texture, mFieldRight_Texture, mFieldCenter_Texture, mControlLeft_Texture, mControlRight_Texture, mControlUp_Texture };
+		for (ITexture texture : allTextures) {
+			if (texture != null) {
+				texture.unload();
+			}
+		}
+	}
+	
+	public void GameScene_load(String player1Drawable, String player2Drawable, int volumeMode) {
+		loadGraphics(player1Drawable, player2Drawable);
 		loadFonts();
 		loadSounds(volumeMode);
-		// OTHER END
 	}
 	
 	public void GameScene_unload() {
-		// GRAPHICS BEGIN
-		if (mArrow_Texture != null) {
-			mArrow_Texture.unload();
-			mArrow_Texture = null;
-		}
-		if (mPlayer1_Texture != null) {
-			mPlayer1_Texture.unload();
-			mPlayer1_Texture = null;
-		}
-		if (mPlayer2_Texture != null) {
-			mPlayer2_Texture.unload();
-			mPlayer2_Texture = null;
-		}
-		if (mBall_Texture != null) {
-			mBall_Texture.unload();
-			mBall_Texture = null;
-		}
-		if (mBackground_Texture != null) {
-			mBackground_Texture.unload();
-			mBackground_Texture = null;
-		}
-		if (mFieldLeft_Texture != null) {
-			mFieldLeft_Texture.unload();
-			mFieldLeft_Texture = null;
-		}
-		if (mFieldRight_Texture != null) {
-			mFieldRight_Texture.unload();
-			mFieldRight_Texture = null;
-		}
-		if (mFieldCenter_Texture != null) {
-			mFieldCenter_Texture.unload();
-			mFieldCenter_Texture = null;
-		}
 		if (mCamera != null) {
 			mCamera.setChaseEntity(null); // stop chasing the ball
 		}
-		// GRAPHICS END
-		// OTHER BEGIN
+		
+		unloadGraphics();
 		unloadFonts();
-		// it seems there is no need to unload sounds manually
-		// OTHER END
 	}
 
 	/**

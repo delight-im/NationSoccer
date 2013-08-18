@@ -25,7 +25,7 @@ public class PlayerSelectionFragment extends SherlockFragment {
 	private Player mPlayer;
 	private int mRequestCode;
 	private PlayerSelectionHandler mCallback;
-	private View.OnClickListener contentClick = new View.OnClickListener() {
+	private View.OnClickListener mContentClick = new View.OnClickListener() {
 		public void onClick(View v) {
 			mCallback.onSelectPlayer(mRequestCode, mPage, mPlayer);
 		}
@@ -76,24 +76,19 @@ public class PlayerSelectionFragment extends SherlockFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.player_selection_page, container, false); // inflate the layout
 
-        getActivity().setTitle(getString(mRequestCode == PlayerSelection.REQUEST_CODE_GET_TEAM_OPPONENT ? R.string.choose_opponent_player : R.string.choose_your_player));
+        getActivity().setTitle(mRequestCode == PlayerSelection.REQUEST_CODE_GET_TEAM_OPPONENT ? R.string.choose_opponent_player : R.string.choose_your_player);
         ImageView picture = (ImageView) rootView.findViewById(R.id.picture);
         picture.setImageResource(mPlayer.getDrawableID());
-        picture.setOnClickListener(contentClick);
         ImageView flag = (ImageView) rootView.findViewById(R.id.flag);
         flag.setImageResource(mPlayer.getFlagDrawableID());
-        flag.setOnClickListener(contentClick);
         ProgressBar skillSpeed = (ProgressBar) rootView.findViewById(R.id.skill_speed);
         skillSpeed.setProgress(Math.round(mPlayer.getSpeed()*100));
-        skillSpeed.setOnClickListener(contentClick);
         ProgressBar skillJump = (ProgressBar) rootView.findViewById(R.id.skill_jump);
         skillJump.setProgress(Math.round(mPlayer.getJump()*100));
-        skillJump.setOnClickListener(contentClick);
         ProgressBar skillPower = (ProgressBar) rootView.findViewById(R.id.skill_power);
         skillPower.setProgress(Math.round(mPlayer.getPower()*100));
-        skillPower.setOnClickListener(contentClick);
         ((TextView) rootView.findViewById(R.id.page_number)).setText(getString(R.string.player_selection_page, mPage+1, mPageCount));
-        rootView.findViewById(R.id.selection_screen).setOnClickListener(contentClick);
+        rootView.findViewById(R.id.submit_selection).setOnClickListener(mContentClick);
 
 		// SHOW OR HIDE FORWARD AND BACKWARD BUTTONS BEGIN
 		View vBackward = rootView.findViewById(R.id.player_back);

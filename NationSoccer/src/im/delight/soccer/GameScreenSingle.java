@@ -131,6 +131,7 @@ public class GameScreenSingle extends GameScreen {
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 		engineOptions.getRenderOptions().setDithering(true); // enable dithering for this engine
 		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true); // enable sound and music
+		engineOptions.getTouchOptions().setNeedsMultiTouch(true); // enable multi-touch for left/right and up button
 		return engineOptions;
 	}
 	
