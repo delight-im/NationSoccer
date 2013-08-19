@@ -16,3 +16,4 @@
 ## Version 0.1.2
 
  * Bug fixes in control of user's player
+ * New translations: Spanish, French and Italian
