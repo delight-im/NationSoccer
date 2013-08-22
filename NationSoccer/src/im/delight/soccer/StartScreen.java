@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class StartScreen extends Activity {
 
@@ -52,7 +51,7 @@ public class StartScreen extends Activity {
         });
         findViewById(R.id.button_bluetooth).setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
-        		Toast.makeText(StartScreen.this, getString(R.string.coming_soon), Toast.LENGTH_SHORT).show();
+        		startActivity(new Intent(StartScreen.this, BluetoothScreen.class));
         	}
         });
         ivSoundOnOff = (ImageView) findViewById(R.id.sound_mode);

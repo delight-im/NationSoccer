@@ -79,5 +79,11 @@
             android:screenOrientation="landscape"
             android:label="@string/career"
             android:theme="@style/MyTheme.MyBackground" />
+        <activity
+            android:name=".BluetoothScreen"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc"
+            android:screenOrientation="landscape"
+            android:label="@string/bluetooth"
+            android:theme="@style/MyTheme.MyBackground" />
     </application>
 </manifest>
